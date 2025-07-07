@@ -1,0 +1,427 @@
+{
+  "name": "E1_Panel",
+  "type": "ARM",
+  "dependenceList": [],
+  "srcDirs": [],
+  "outDir": "build",
+  "deviceName": "HC32F460JEUA",
+  "packDir": ".pack/HDSC/HC32F460.1.0.12",
+  "miscInfo": {
+    "lastBuildTime": 1608695075742,
+    "uid": "804a484d3f69cf1fa0354e7d18e2fd4b"
+  },
+  "virtualFolder": {
+    "name": "<virtual_root>",
+    "files": [],
+    "folders": [
+      {
+        "name": "Arduino",
+        "files": [
+          {
+            "path": "Arduino/avr/dtostrf.c"
+          },
+          {
+            "path": "Arduino/abi.cpp"
+          },
+          {
+            "path": "Arduino/itoa.c"
+          },
+          {
+            "path": "Arduino/Print.cpp"
+          },
+          {
+            "path": "Arduino/Stream.cpp"
+          },
+          {
+            "path": "Arduino/WInterrupts.cpp"
+          },
+          {
+            "path": "Arduino/wiring_analog.cpp"
+          },
+          {
+            "path": "Arduino/wiring_digital.cpp"
+          },
+          {
+            "path": "Arduino/wiring_shift.c"
+          },
+          {
+            "path": "Arduino/WMath.cpp"
+          },
+          {
+            "path": "Arduino/WString.cpp"
+          },
+          {
+            "path": "Arduino/yield.c"
+          }
+        ],
+        "folders": [
+          {
+            "name": "drivers",
+            "files": [],
+            "folders": [
+              {
+                "name": "adc",
+                "files": [
+                  {
+                    "path": "Arduino/drivers/adc/adc.cpp"
+                  },
+                  {
+                    "path": "Arduino/drivers/adc/adc_config.cpp"
+                  }
+                ],
+                "folders": []
+              },
+              {
+                "name": "gpio",
+                "files": [
+                  {
+                    "path": "Arduino/drivers/gpio/addon_gpio.c"
+                  }
+                ],
+                "folders": []
+              },
+              {
+                "name": "irqn",
+                "files": [
+                  {
+                    "path": "Arduino/drivers/irqn/irqn.cpp"
+                  }
+                ],
+                "folders": []
+              },
+              {
+                "name": "sysclock",
+                "files": [
+                  {
+                    "path": "Arduino/drivers/sysclock/sysclock.cpp"
+                  },
+                  {
+                    "path": "Arduino/drivers/sysclock/sysclock_util.cpp"
+                  },
+                  {
+                    "path": "Arduino/drivers/sysclock/systick.cpp"
+                  }
+                ],
+                "folders": []
+              },
+              {
+                "name": "usart",
+                "files": [
+                  {
+                    "path": "Arduino/drivers/usart/Usart.cpp"
+                  },
+                  {
+                    "path": "Arduino/drivers/usart/usart_config.cpp"
+                  },
+                  {
+                    "path": "Arduino/drivers/usart/usart_sync.cpp"
+                  }
+                ],
+                "folders": []
+              },
+              {
+                "name": "timera",
+                "files": [
+                  {
+                    "path": "Arduino/drivers/timera/timera_config.cpp"
+                  }
+                ],
+                "folders": []
+              }
+            ]
+          },
+          {
+            "name": "libraries",
+            "files": [],
+            "folders": []
+          },
+          {
+            "name": "variants",
+            "files": [
+              {
+                "path": "Arduino/variants/generic_hc32f460/variant.cpp"
+              }
+            ],
+            "folders": []
+          }
+        ]
+      },
+      {
+        "name": "config",
+        "files": [
+          {
+            "path": "config/ddl_config.h"
+          }
+        ],
+        "folders": []
+      },
+      {
+        "name": "platform",
+        "files": [],
+        "folders": [
+          {
+            "name": "compat",
+            "files": [
+              {
+                "path": "platform/compat/newlib.c"
+              }
+            ],
+            "folders": []
+          },
+          {
+            "name": "core",
+            "files": [
+              {
+                "path": "platform/core/delay.c"
+              },
+              {
+                "path": "platform/core/x_printf.cpp"
+              }
+            ],
+            "folders": []
+          },
+          {
+            "name": "hc32_drivers",
+            "files": [
+              {
+                "path": "platform/hc32_drivers/src/hc32f460_adc.c"
+              },
+              {
+                "path": "platform/hc32_drivers/src/hc32f460_clk.c"
+              },
+              {
+                "path": "platform/hc32_drivers/src/hc32f460_crc.c"
+              },
+              {
+                "path": "platform/hc32_drivers/src/hc32f460_dmac.c"
+              },
+              {
+                "path": "platform/hc32_drivers/src/hc32f460_efm.c"
+              },
+              {
+                "path": "platform/hc32_drivers/src/hc32f460_emb.c"
+              },
+              {
+                "path": "platform/hc32_drivers/src/hc32f460_event_port.c"
+              },
+              {
+                "path": "platform/hc32_drivers/src/hc32f460_exint_nmi_swi.c"
+              },
+              {
+                "path": "platform/hc32_drivers/src/hc32f460_gpio.c"
+              },
+              {
+                "path": "platform/hc32_drivers/src/hc32f460_i2c.c"
+              },
+              {
+                "path": "platform/hc32_drivers/src/hc32f460_icg.c"
+              },
+              {
+                "path": "platform/hc32_drivers/src/hc32f460_interrupts.c"
+              },
+              {
+                "path": "platform/hc32_drivers/src/hc32f460_rmu.c"
+              },
+              {
+                "path": "platform/hc32_drivers/src/hc32f460_spi.c"
+              },
+              {
+                "path": "platform/hc32_drivers/src/hc32f460_sram.c"
+              },
+              {
+                "path": "platform/hc32_drivers/src/hc32f460_timer0.c"
+              },
+              {
+                "path": "platform/hc32_drivers/src/hc32f460_timera.c"
+              },
+              {
+                "path": "platform/hc32_drivers/src/hc32f460_usart.c"
+              },
+              {
+                "path": "platform/hc32_drivers/src/hc32f460_utility.c"
+              },
+              {
+                "path": "platform/hc32_drivers/src/hc32f460_wdt.c"
+              },
+              {
+                "path": "platform/hc32_drivers/src/hc32f460_pwc.c"
+              }
+            ],
+            "folders": []
+          },
+          {
+            "name": "mcu",
+            "files": [
+              {
+                "path": "platform/mcu/common/system_hc32f460.c"
+              }
+            ],
+            "folders": []
+          },
+          {
+            "name": "startup",
+            "files": [
+              {
+                "path": "platform/startup/startup_hc32f460.S"
+              }
+            ],
+            "folders": []
+          }
+        ]
+      },
+      {
+        "name": "User",
+        "files": [
+          {
+            "path": "user/main.cpp"
+          }
+        ],
+        "folders": []
+      }
+    ]
+  },
+  "targets": {
+    "Debug": {
+      "excludeList": [
+        "hal/STM32F10x_StdPeriph_Driver/src/stm32f10x_bkp.c",
+        "hal/STM32F10x_StdPeriph_Driver/src/stm32f10x_can.c",
+        "hal/STM32F10x_StdPeriph_Driver/src/stm32f10x_cec.c",
+        "hal/STM32F10x_StdPeriph_Driver/src/stm32f10x_crc.c",
+        "hal/STM32F10x_StdPeriph_Driver/src/stm32f10x_dac.c",
+        "hal/STM32F10x_StdPeriph_Driver/src/stm32f10x_dbgmcu.c",
+        "hal/STM32F10x_StdPeriph_Driver/src/stm32f10x_dma.c",
+        "hal/STM32F10x_StdPeriph_Driver/src/stm32f10x_flash.c",
+        "hal/STM32F10x_StdPeriph_Driver/src/stm32f10x_fsmc.c",
+        "hal/STM32F10x_StdPeriph_Driver/src/stm32f10x_i2c.c",
+        "hal/STM32F10x_StdPeriph_Driver/src/stm32f10x_iwdg.c",
+        "hal/STM32F10x_StdPeriph_Driver/src/stm32f10x_pwr.c",
+        "hal/STM32F10x_StdPeriph_Driver/src/stm32f10x_rtc.c",
+        "hal/STM32F10x_StdPeriph_Driver/src/stm32f10x_sdio.c",
+        "hal/STM32F10x_StdPeriph_Driver/src/stm32f10x_wwdg.c"
+      ],
+      "toolchain": "GCC",
+      "compileConfig": {
+        "cpuType": "Cortex-M4",
+        "floatingPointHardware": "single",
+        "useCustomScatterFile": true,
+        "scatterFilePath": "platform\\startup\\linker\\HC32F460xE.ld",
+        "storageLayout": {
+          "RAM": [
+            {
+              "tag": "IRAM",
+              "id": 1,
+              "mem": {
+                "startAddr": "0x20000000",
+                "size": "0x2800"
+              },
+              "isChecked": "1",
+              "noInit": false
+            }
+          ],
+          "ROM": [
+            {
+              "tag": "IROM",
+              "id": 1,
+              "mem": {
+                "startAddr": "0x08000000",
+                "size": "0x10000"
+              },
+              "isChecked": "1",
+              "isStartup": true
+            }
+          ]
+        },
+        "options": "null"
+      },
+      "uploader": "pyOCD",
+      "uploadConfig": {
+        "bin": "",
+        "targetName": "hc32f460xe",
+        "baseAddr": "0x08000000",
+        "speed": "5M",
+        "config": ".eide/debug.pyocd.yaml",
+        "otherCmds": ""
+      },
+      "uploadConfigMap": {
+        "JLink": {
+          "bin": "",
+          "baseAddr": "0x08000000",
+          "cpuInfo": {
+            "vendor": "XHSC",
+            "cpuName": "HC32F460xE"
+          },
+          "proType": 1,
+          "speed": 8000,
+          "otherCmds": ""
+        },
+        "pyOCD": {
+          "bin": "",
+          "targetName": "hc32f460xe",
+          "baseAddr": "0x08000000",
+          "speed": "8M",
+          "config": ".eide/debug.pyocd.yaml",
+          "otherCmds": ""
+        }
+      },
+      "custom_dep": {
+        "name": "default",
+        "incList": [
+          ".",
+          "Arduino",
+          "Arduino/avr",
+          "Arduino/drivers/adc",
+          "Arduino/drivers/gpio",
+          "Arduino/drivers/irqn",
+          "Arduino/drivers/sysclock",
+          "Arduino/drivers/timera",
+          "Arduino/drivers/usart",
+          "Arduino/variants/generic_hc32f460",
+          "config",
+          "platform/compat",
+          "platform/core",
+          "platform/hc32_drivers/inc",
+          "platform/mcu/cmsis",
+          "platform/mcu/common",
+          "user"
+        ],
+        "libList": [],
+        "defineList": [
+          "USE_DEVICE_DRIVER_LIB",
+          "HC32F460"
+        ]
+      },
+      "builderOptions": {
+        "GCC": {
+          "version": 5,
+          "beforeBuildTasks": [],
+          "afterBuildTasks": [],
+          "global": {
+            "$float-abi-type": "softfp",
+            "output-debug-info": "enable",
+            "misc-control": "--specs=nosys.specs --specs=nano.specs"
+          },
+          "c/cpp-compiler": {
+            "language-c": "c11",
+            "language-cpp": "c++11",
+            "optimization": "level-debug",
+            "warnings": "all-warnings",
+            "one-elf-section-per-function": true,
+            "one-elf-section-per-data": true,
+            "C_FLAGS": "",
+            "CXX_FLAGS": ""
+          },
+          "asm-compiler": {
+            "ASM_FLAGS": ""
+          },
+          "linker": {
+            "output-format": "elf",
+            "remove-unused-input-sections": true,
+            "LD_FLAGS": "",
+            "LIB_FLAGS": "-lm"
+          }
+        }
+      }
+    }
+  },
+  "version": "3.5"
+}
