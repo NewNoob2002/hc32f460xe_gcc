@@ -276,7 +276,17 @@
             "path": "user/main.cpp"
           }
         ],
-        "folders": []
+        "folders": [
+          {
+            "name": "init",
+            "files": [
+              {
+                "path": "user/init/init.cpp"
+              }
+            ],
+            "folders": []
+          }
+        ]
       }
     ]
   },
@@ -304,7 +314,7 @@
         "cpuType": "Cortex-M4",
         "floatingPointHardware": "single",
         "useCustomScatterFile": true,
-        "scatterFilePath": "platform\\startup\\linker\\HC32F460xE.ld",
+        "scatterFilePath": "platform\\startup\\linker\\hc32f46x_final.ld",
         "storageLayout": {
           "RAM": [
             {
@@ -393,7 +403,15 @@
       "builderOptions": {
         "GCC": {
           "version": 5,
-          "beforeBuildTasks": [],
+          "beforeBuildTasks": [
+            {
+              "name": "conver ld_param to ld",
+              "disable": false,
+              "abortAfterFailed": false,
+              "stopBuildAfterFailed": true,
+              "command": "arm-none-eabi-gcc -C -P -x c -E \"platform/startup/linker/hc32f46x_param.ld\" -o \"platform\\startup\\linker\\hc32f46x_final.ld\" -DLD_FLASH_START=0x00000000 -DLD_FLASH_SIZE=0x80000 -DLD_BOOT_MODE=1 -DDDL_STACK_SIZE=0x00001000"
+            }
+          ],
           "afterBuildTasks": [],
           "global": {
             "$float-abi-type": "softfp",
@@ -406,18 +424,14 @@
             "optimization": "level-debug",
             "warnings": "all-warnings",
             "one-elf-section-per-function": true,
-            "one-elf-section-per-data": true,
-            "C_FLAGS": "",
-            "CXX_FLAGS": ""
+            "one-elf-section-per-data": true
           },
-          "asm-compiler": {
-            "ASM_FLAGS": ""
-          },
+          "asm-compiler": {},
           "linker": {
             "output-format": "elf",
             "remove-unused-input-sections": true,
-            "LD_FLAGS": "",
-            "LIB_FLAGS": "-lm"
+            "LIB_FLAGS": "-lm",
+            "$toolName": "auto"
           }
         }
       }

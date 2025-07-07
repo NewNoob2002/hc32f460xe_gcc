@@ -1,41 +1,81 @@
-/******************************************************************************
- * Copyright (C) 2022-2025, Xiaohua Semiconductor Co., Ltd. All rights reserved.
+/*
+ * parameterized linker flag for the HC32F46x SOC.
+ * the linker script has to be pre-processed using the C preprocessor
+ * to allow for parameterization.
+ * 
+ * to do so, run "$CC -C -P -x c -E <SOURCE> -o <TARGET> -D<PARAM_NAME>=<VALUE>"", adding defines as described below.
+ * see https://stackoverflow.com/a/35824964/13942493 
  *
- * This software component is licensed by XHSC under BSD 3-Clause license
- * (the "License"); You may not use this file except in compliance with the
- * License. You may obtain a copy of the License at:
- *                    opensource.org/licenses/BSD-3-Clause
- *
+ * 
+ * Parameter List:
+ * - LD_FLASH_START: start address of flash memory
+ * - LD_FLASH_SIZE: size of flash memory
+ * - LD_BOOT_MODE: boot mode of the firmware image
+ *   * 1: primary boot mode, e.g. bootloader (default)
+ *   * 2: secondary boot mode, e.g. application firmware (called by a bootloader) (saves ~1.5k flash)
+ * - DDL_STACK_SIZE: size of the stack, in bytes
+ * - DDL_HEAP_SIZE: size of the heap, in bytes
+ * 
+ * note: previously, ram options were also configurable. 
+ * this was removed to simplify the linker script (all HC32F460 have the same ram anyway)
  */
+
+/*
+;*******************************************************************************
+; * Copyright (C) 2020, Huada Semiconductor Co., Ltd. All rights reserved.
+; *
+; * This software component is licensed by HDSC under BSD 3-Clause license
+; * (the "License"); You may not use this file except in compliance with the
+; * License. You may obtain a copy of the License at:
+; *                    opensource.org/licenses/BSD-3-Clause
+*/
 /*****************************************************************************/
-/*  File        HC32F460xC.ld                                                */
+/*  File        hc32f460xc_flash.ld                                          */
 /*  Abstract    Linker script for HC32F460 Device with                       */
 /*              256KByte FLASH, 192KByte RAM                                 */
 /*  Version     V1.0                                                         */
-/*  Date        2022-03-31                                                   */
+/*  Date        2019-03-13                                                   */
 /*****************************************************************************/
-/* OTP section implementation.
-   You need to pay attention to the size of the specified OTP block.
-   Take two OTP blocks for example. */
-__OTP_DATA_BASE = 0x03000C00;
-__OTP_LOCK_BASE = 0x03000FC0;
-/* OTP block 0 */
-__OTP_DATA_B0_START  = 0x03000C00;
-__OTP_LOCK_B0_START  = 0x03000FC0;
-__OTP_DATA_B0_OFFSET = __OTP_DATA_B0_START - __OTP_DATA_BASE;
-__OTP_LOCK_B0_OFFSET = __OTP_LOCK_B0_START - __OTP_LOCK_BASE;
-/* OTP block 1 */
-__OTP_DATA_B1_START  = 0x03000C40;
-__OTP_LOCK_B1_START  = 0x03000FC4;
-__OTP_DATA_B1_OFFSET = __OTP_DATA_B1_START - __OTP_DATA_BASE;
-__OTP_LOCK_B1_OFFSET = __OTP_LOCK_B1_START - __OTP_LOCK_BASE;
+
+/* ensure parameters are defined */
+#ifndef LD_FLASH_START
+  #error "LD_FLASH_START not defined"
+#endif
+
+#ifndef LD_FLASH_SIZE
+  #error "LD_FLASH_SIZE not defined"
+#endif
+
+#ifndef LD_BOOT_MODE
+  #warning "LD_BOOT_MODE not defined, fallback to PRIMARY (1)"
+  #define LD_BOOT_MODE 1
+#endif
+
+/* check if boot mode is valid */
+#if LD_BOOT_MODE != 1 && LD_BOOT_MODE != 2
+  #error "LD_BOOT_MODE must be PRIMARY (1) or SECONDARY (2)"
+#endif
+
+/* check boot mode is allowed */
+#if LD_FLASH_START == 0 && LD_BOOT_MODE != 1
+  #error "bootloader firmware is required to use PRIMARY boot mode!"
+#endif
+
+#if LD_BOOT_MODE == 1 && LD_FLASH_START != 0
+  #error "bootloader firmware is required to be at address 0x0!"
+#endif
+
+/* flash start offset reduces effective flash size available */
+#define FLASH_SIZE_REAL (LD_FLASH_SIZE - LD_FLASH_START)
+#if FLASH_SIZE_REAL < 0
+  #error "effective flash size is negative! check your linker script parameters"
+#endif
 
 /* Use contiguous memory regions for simple. */
 MEMORY
 {
-    FLASH       (rx): ORIGIN = 0x00000000, LENGTH = 256K
-    OTP_DATA    (rx): ORIGIN = 0x03000C00, LENGTH = 960
-    OTP_LOCK    (rx): ORIGIN = 0x03000FC0, LENGTH = 60
+    FLASH       (rx): ORIGIN = LD_FLASH_START, LENGTH = FLASH_SIZE_REAL
+    OTP         (rx): ORIGIN = 0x03000C00, LENGTH = 1020
     RAM        (rwx): ORIGIN = 0x1FFF8000, LENGTH = 188K
     RET_RAM    (rwx): ORIGIN = 0x200F0000, LENGTH = 4K
 }
@@ -44,18 +84,31 @@ ENTRY(Reset_Handler)
 
 SECTIONS
 {
+    /* vector table: 0x000 - 0x27F + padding  */
     .vectors :
     {
-        . = ALIGN(4);
-        KEEP(*(.vectors))
-        . = ALIGN(4);
+        KEEP(*(.vectors));
+
+        #if LD_BOOT_MODE == 1
+            /* add padding to ICG start */
+            . = 0x400;
+        #else
+            /* no padding since ICG is removed */
+            . = 0x280;
+        #endif
     } >FLASH
 
-    .icg_sec 0x00000400 :
-    {
-        KEEP(*(.icg_sec))
-    } >FLASH
+    #if LD_BOOT_MODE == 1
+        /* ICG: 0x400 - 0x41F*/
+        .icg_sec :
+        {
+            ASSERT(. == (ORIGIN(FLASH) + 0x400), "icg_sec alignment issue");
+            KEEP(*(.icg_sec));
+            ASSERT(. == (ORIGIN(FLASH) + 0x420), "icg_sec alignment issue");
+        } >FLASH
+    #endif
 
+    /* append all other FLASH sections after */
     .text :
     {
         . = ALIGN(4);
@@ -124,25 +177,15 @@ SECTIONS
 
     __etext = ALIGN(4);
 
-    .otp_data :
+    .otp_sec :
     {
-        . = ALIGN(4);
-        . = ORIGIN(OTP_DATA) + __OTP_DATA_B0_OFFSET;
-        KEEP(*(.otp_b0_data*))
-        . = ORIGIN(OTP_DATA) + __OTP_DATA_B1_OFFSET;
-        KEEP(*(.otp_b1_data*))
-        . = ALIGN(4);
-    } >OTP_DATA
+        KEEP(*(.otp_sec))
+    } >OTP
 
-    .otp_lock :
+    .otp_lock_sec 0x03000FC0 :
     {
-        . = ALIGN(4);
-        . = ORIGIN(OTP_LOCK) + __OTP_LOCK_B0_OFFSET;
-        KEEP(*(.otp_b0_lock*))
-        . = ORIGIN(OTP_LOCK) + __OTP_LOCK_B1_OFFSET;
-        KEEP(*(.otp_b1_lock*))
-        . = ALIGN(4);
-    } >OTP_LOCK
+        KEEP(*(.otp_lock_sec))
+    } >OTP
 
     .data : AT (__etext)
     {
@@ -169,7 +212,7 @@ SECTIONS
         __data_end_ret_ram__ = .;
     } >RET_RAM
 
-    .bss (NOLOAD):
+    .bss :
     {
         . = ALIGN(4);
         _sbss = .;
@@ -180,9 +223,6 @@ SECTIONS
         . = ALIGN(4);
         _ebss = .;
         __bss_end__ = _ebss;
-        . = ALIGN(4);
-        *(.noinit*)
-        . = ALIGN(4);
     } >RAM
 
     .ret_ram_bss :
@@ -226,4 +266,10 @@ SECTIONS
 
     __RamEnd = ORIGIN(RAM) + LENGTH(RAM);
     ASSERT(__StackTop <= __RamEnd, "region RAM overflowed with stack")
+
+    /* ensure that HEAP and STACK don't overlap with each other OR bss */
+    ASSERT(__HeapBase <= __HeapLimit, "HEAP is broken")
+    ASSERT(__StackLimit <= __StackTop, "STACK is broken")
+    ASSERT(__bss_end__ <= __HeapBase, "HEAP should follow BSS in memory")
+    ASSERT(__HeapLimit <= __StackLimit, "STACK should follow HEAP in memory")
 }
