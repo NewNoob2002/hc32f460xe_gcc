@@ -33,7 +33,7 @@
 #include "cmb_user_cfg.h"
 #else
 /* print line, must config by user */
-#define cmb_println(...)               printf(__VA_ARGS__);printf("\r\n")/* e.g., x_printf(__VA_ARGS__);x_printf("\r\n")  or  SEGGER_RTT_printf(0, __VA_ARGS__);SEGGER_RTT_WriteString(0, "\r\n")  */
+#define cmb_println(...)               do { printf(__VA_ARGS__); printf("\r\n"); } while(0)
 /* enable bare metal(no OS) platform */
 /* #define CMB_USING_BARE_METAL_PLATFORM */
 #define CMB_USING_BARE_METAL_PLATFORM

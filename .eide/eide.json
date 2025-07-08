@@ -327,6 +327,21 @@
               }
             ],
             "folders": []
+          },
+          {
+            "name": "lvmem",
+            "files": [
+              {
+                "path": "libraries/lwmem/src/lwmem/lwmem.c"
+              },
+              {
+                "path": "libraries/lwmem/src/lwmem/lwmem.cpp"
+              },
+              {
+                "path": "libraries/lwmem/src/system/lwmem_sys_cmsis_os.c"
+              }
+            ],
+            "folders": []
           }
         ]
       }
@@ -441,7 +456,9 @@
           "Arduino/drivers/panic",
           "libraries/cm_backtrace",
           "libraries/cm_backtrace/Languages/en-US",
-          "libraries/MillisTaskManager"
+          "libraries/MillisTaskManager",
+          "libraries/lwmem/src/include/lwmem",
+          "libraries/lwmem/src/include"
         ],
         "libList": [],
         "defineList": [

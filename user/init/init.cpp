@@ -6,6 +6,16 @@
 #include "../core_hooks.h"
 #include <Arduino.h>
 #include <cm_backtrace.h>
+#include "mcu_config.h"
+#include "lwmem/lwmem.h"
+
+uint8_t region1_data[1024 * LWMEM_SIZE];
+
+static lwmem_region_t
+    regions[] = {
+        {region1_data, sizeof(region1_data)},
+        /* Add more regions if needed */
+        {NULL, 0}};
 
 /**
  * @brief check if the last reset was caused by a
@@ -48,7 +58,7 @@ void core_init()
     // setup usart
     Serial.begin(115200);
     // setup backtrace
-    cm_backtrace_init("E1_Panel", "V1.0.0", "V1.0.0");
+    cm_backtrace_init(SOFTWARE_NAME, HARDWARE_VERSION, SOFTWARE_VERSION " " SOFTWARE_BUILD_DATE " " SOFTWARE_BUILD_TIME);
     // setup systick
     systick_init();
 
@@ -56,4 +66,8 @@ void core_init()
 #if !defined(CORE_DONT_ENABLE_ICACHE)
     EFM_InstructionCacheCmd(Enable);
 #endif
+    // setup lwmem
+    size_t region_count = lwmem_assignmem(regions);
+    CORE_ASSERT(region_count > 0, "LwMEM initialization failed");
+    printf("LwMEM initialized and ready to use, region count: %d\r\n", region_count);
 }

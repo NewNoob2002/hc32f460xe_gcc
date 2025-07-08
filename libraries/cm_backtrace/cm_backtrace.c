@@ -279,7 +279,7 @@ static void dump_stack(uint32_t stack_start_addr, size_t stack_size, uint32_t *s
     }
     cmb_println(print_info[PRINT_THREAD_STACK_INFO]);
     for (; (uint32_t) stack_pointer < stack_start_addr + stack_size && deep; stack_pointer++, deep--) {
-        cmb_println("  addr: %08x    data: %08x", stack_pointer, *stack_pointer);
+        cmb_println("  addr: %p    data: %08lx", stack_pointer, *stack_pointer);
     }
     cmb_println("====================================");
 }
@@ -440,7 +440,7 @@ void cm_backtrace_assert(uint32_t sp) {
 
     CMB_ASSERT(init_ok);
 
-    cmb_println("");
+    cmb_println("\n");
     cm_backtrace_firmware_info();
 
 #ifdef CMB_USING_OS_PLATFORM
@@ -627,7 +627,7 @@ void cm_backtrace_fault(uint32_t fault_handler_lr, uint32_t fault_handler_sp) {
 
     on_fault = true;
 
-    cmb_println("");
+    cmb_println("\n");
     cm_backtrace_firmware_info();
 
 #ifdef CMB_USING_OS_PLATFORM
@@ -660,7 +660,7 @@ void cm_backtrace_fault(uint32_t fault_handler_lr, uint32_t fault_handler_sp) {
 #ifdef CMB_USING_DUMP_STACK_INFO
     /* check stack overflow */
     if (stack_pointer < stack_start_addr || stack_pointer > stack_start_addr + stack_size) {
-        cmb_println("stack_pointer: 0x%08x, stack_start_addr: 0x%08x, stack_end_addr: 0x%08x", stack_pointer, stack_start_addr,
+        cmb_println("stack_pointer: 0x%08lx, stack_start_addr: 0x%08lx, stack_end_addr: 0x%08lx", stack_pointer, stack_start_addr,
             stack_start_addr + stack_size);
         stack_is_overflow = true;
 #if (CMB_OS_PLATFORM_TYPE == CMB_OS_PLATFORM_RTT)
