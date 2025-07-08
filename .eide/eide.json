@@ -297,6 +297,18 @@
               }
             ],
             "folders": []
+          },
+          {
+            "name": "bsp",
+            "files": [
+              {
+                "path": "user/bsp/src/LCD.c"
+              },
+              {
+                "path": "user/bsp/src/MYSPI.c"
+              }
+            ],
+            "folders": []
           }
         ]
       },
@@ -457,8 +469,8 @@
           "libraries/cm_backtrace",
           "libraries/cm_backtrace/Languages/en-US",
           "libraries/MillisTaskManager",
-          "libraries/lwmem/src/include/lwmem",
-          "libraries/lwmem/src/include"
+          "libraries/lwmem/src/include",
+          "user/bsp/inc"
         ],
         "libList": [],
         "defineList": [
