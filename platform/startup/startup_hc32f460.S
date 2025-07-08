@@ -53,7 +53,7 @@ __StackTop:
 ;  <o> Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ;</h>
 */
-                .equ        Heap_Size, 0x00008000
+                .equ        Heap_Size, 0x00002000
 
                 .if         Heap_Size != 0                     /* Heap is provided */
                 .section    .heap

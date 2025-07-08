@@ -48,8 +48,8 @@ void core_init()
     PORT_DebugPortSetting(TDO_SWO, Disable);
     PORT_DebugPortSetting(TRST, Disable);
     // setup vector table offset
-    SCB->VTOR = (uint32_t(LD_FLASH_START) & SCB_VTOR_TBLOFF_Msk);
-    // SCB->CCR |= SCB_CCR_DIV_0_TRP_Msk | SCB_CCR_UNALIGN_TRP_Msk;
+    SCB->VTOR = LD_FLASH_START;
+    SCB->CCR |= SCB_CCR_DIV_0_TRP_Msk; // | SCB_CCR_UNALIGN_TRP_Msk;
     // check if last reset could be reoccuring
     check_reoccuring_reset_fault();
     // setup system clock
