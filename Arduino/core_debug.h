@@ -2,9 +2,8 @@
 #define _CORE_DEBUG_H
 
 #include <stdio.h>
-//#include "drivers/panic/panic.h"
+#include "drivers/panic/panic.h"
 #include "core_util.h"
-#include "x_printf.h"
 
 #ifdef __CORE_DEBUG
 
@@ -15,13 +14,14 @@
 #endif
 
 #ifndef CORE_DEBUG_PRINTF
-#define CORE_DEBUG_PRINTF(fmt, ...) 	x_printf(fmt, ##__VA_ARGS__)
+#define CORE_DEBUG_PRINTF(fmt, ...) printf(fmt, ##__VA_ARGS__)
 #endif
 
 #ifndef CORE_ASSERT
 #define CORE_ASSERT(expression, message, ...) \
     if (!(expression))                        \
     {                                         \
+        panic("CORE_ASSERT:" message "\n\n"); \
         __VA_ARGS__;                          \
     }
 #endif
@@ -42,9 +42,7 @@
 
 #define CORE_ASSERT_FAIL(message) CORE_ASSERT(false, message)
 
-#ifdef __cplusplus
 #include "WVariant.h"
-#endif
 #define ASSERT_GPIO_PIN_VALID(gpio_pin, fn_name, ...) \
     CORE_ASSERT(IS_GPIO_PIN(gpio_pin), "invalid GPIO pin supplied to " fn_name, ##__VA_ARGS__)
 

@@ -127,6 +127,18 @@
                   }
                 ],
                 "folders": []
+              },
+              {
+                "name": "panic",
+                "files": [
+                  {
+                    "path": "Arduino/drivers/panic/ddl_assert.c"
+                  },
+                  {
+                    "path": "Arduino/drivers/panic/panic.cpp"
+                  }
+                ],
+                "folders": []
               }
             ]
           },
@@ -287,6 +299,36 @@
             "folders": []
           }
         ]
+      },
+      {
+        "name": "libraries",
+        "files": [],
+        "folders": [
+          {
+            "name": "MillisTaskManager",
+            "files": [
+              {
+                "path": "libraries/MillisTaskManager/MillisTaskManager.cpp"
+              }
+            ],
+            "folders": []
+          },
+          {
+            "name": "cm_backtrace",
+            "files": [
+              {
+                "path": "libraries/cm_backtrace/cm_backtrace.c"
+              },
+              {
+                "path": "libraries/cm_backtrace/cmb_cfg.h"
+              },
+              {
+                "path": "libraries/cm_backtrace/fault_handler/gcc/cmb_fault.S"
+              }
+            ],
+            "folders": []
+          }
+        ]
       }
     ]
   },
@@ -343,13 +385,16 @@
         },
         "options": "null"
       },
-      "uploader": "pyOCD",
+      "uploader": "JLink",
       "uploadConfig": {
         "bin": "",
-        "targetName": "hc32f460xe",
         "baseAddr": "0x08000000",
-        "speed": "5M",
-        "config": ".eide/debug.pyocd.yaml",
+        "cpuInfo": {
+          "vendor": "XHSC",
+          "cpuName": "HC32F460xE"
+        },
+        "proType": 1,
+        "speed": 8000,
         "otherCmds": ""
       },
       "uploadConfigMap": {
@@ -368,7 +413,7 @@
           "bin": "",
           "targetName": "hc32f460xe",
           "baseAddr": "0x08000000",
-          "speed": "8M",
+          "speed": "5M",
           "config": ".eide/debug.pyocd.yaml",
           "otherCmds": ""
         }
@@ -392,12 +437,17 @@
           "platform/hc32_drivers/inc",
           "platform/mcu/cmsis",
           "platform/mcu/common",
-          "user"
+          "user",
+          "Arduino/drivers/panic",
+          "libraries/cm_backtrace",
+          "libraries/cm_backtrace/Languages/en-US",
+          "libraries/MillisTaskManager"
         ],
         "libList": [],
         "defineList": [
           "USE_DEVICE_DRIVER_LIB",
-          "HC32F460"
+          "HC32F460",
+          "__CORE_DEBUG"
         ]
       },
       "builderOptions": {

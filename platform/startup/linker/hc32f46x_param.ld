@@ -112,6 +112,7 @@ SECTIONS
     .text :
     {
         . = ALIGN(4);
+        _stext = .;
         *(.text)
         *(.text*)
         *(.glue_7)
@@ -176,6 +177,7 @@ SECTIONS
     } >FLASH
 
     __etext = ALIGN(4);
+    _etext = __etext;
 
     .otp_sec :
     {
@@ -261,6 +263,8 @@ SECTIONS
     .ARM.attributes 0 : { *(.ARM.attributes) }
 
     PROVIDE(_stack = __StackTop);
+    PROVIDE(_sstack = __StackLimit);
+    PROVIDE(_estack = __StackTop);
     PROVIDE(_Min_Heap_Size = __HeapLimit - __HeapBase);
     PROVIDE(_Min_Stack_Size = __StackTop - __StackLimit);
 
