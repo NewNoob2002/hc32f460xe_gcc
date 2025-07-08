@@ -107,8 +107,7 @@ void spi_dma_push(const void* data, uint32_t size)
 		while (Reset == DMA_GetIrqFlag(SPI_DMA_UNIT, SPI_DMA_TX_CHANNEL, TrnCpltIrq))
 		{
 		}
-	  DMA_ClearIrqFlag(SPI_DMA_UNIT, SPI_DMA_TX_CHANNEL, TrnCpltIrq);
-		// LCD_CS_SET;		
+	  DMA_ClearIrqFlag(SPI_DMA_UNIT, SPI_DMA_TX_CHANNEL, TrnCpltIrq);		
 }
 
 

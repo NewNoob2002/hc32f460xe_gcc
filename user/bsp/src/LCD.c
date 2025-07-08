@@ -9,10 +9,8 @@ uint8_t chunk_buffer[LCD_CHUNK_BUFFER_SIZE];
 
 void LCD_WR_DATA8(uint8_t data)
 {
-    LCD_CS_CLR;
     LCD_RS_SET;
     spi_write_byte(data);
-    LCD_CS_SET;
 }
 
 void LCD_WR_DATA(uint16_t data)
@@ -23,10 +21,8 @@ void LCD_WR_DATA(uint16_t data)
 
 void LCD_WR_REG(uint8_t data)
 {
-    LCD_CS_CLR;
     LCD_RS_CLR;
     spi_write_byte(data);
-    LCD_CS_SET;
 }
 
 /**
@@ -45,6 +41,8 @@ void LCD_Control_Init(void)
     PORT_Init(LCD_PORT, LCDPin_RS, &stcPortInit);
     PORT_Init(LCD_PORT, LCDPin_RST, &stcPortInit);
     PORT_Init(LCD_PORT, LCDPin_CS, &stcPortInit);
+
+	LCD_CS_CLR;
 }
 
 /*******************************************************************************
@@ -62,7 +60,6 @@ void LCD_Simple_inition(void)
     LCD_RST_SET;
     delay_ms(50); // DDL_DelayMS(50);
     LCD_RST_CLR;
-    LCD_CS_SET;
     delay_ms(50); // DDL_DelayMS(50);
     LCD_RST_SET;
     delay_ms(150); // DDL_DelayMS(150);
@@ -90,9 +87,6 @@ void LCD_Simple_inition(void)
     delay_ms(150);
 
     LCD_WR_REG(0x29);
-
-    /// LCD_CS(1);
-    LCD_CS_SET;
 }
 
 void LCD_SPI_SetDisplayWindow(u16 add_sx, u16 add_ex, u16 add_sy, u16 add_ey)
@@ -102,8 +96,6 @@ void LCD_SPI_SetDisplayWindow(u16 add_sx, u16 add_ex, u16 add_sy, u16 add_ey)
     u16 sy = add_sy;
     u16 ey = add_ey;
 
-    /// LCD_CS(0);
-    LCD_CS_CLR;
     LCD_WR_REG(0x2A); // Column Adress Setting
     LCD_WR_DATA8(sx >> 8);
     LCD_WR_DATA8(sx);
@@ -116,15 +108,6 @@ void LCD_SPI_SetDisplayWindow(u16 add_sx, u16 add_ex, u16 add_sy, u16 add_ey)
     LCD_WR_DATA8(ey >> 8);
     LCD_WR_DATA8(ey); //
     LCD_WR_REG(0x2c);
-    /// LCD_CS(1);
-    LCD_CS_SET;
-}
-
-void LCD_SPI_WriteRAM_Prepare(void)
-{
-    LCD_CS_CLR;
-    LCD_WR_REG(0x2c);
-    LCD_CS_SET;
 }
 
 void LCD_Fill(uint16_t x_start, uint16_t y_start, uint16_t x_end, uint16_t y_end, uint16_t color)
@@ -140,7 +123,6 @@ void LCD_Fill(uint16_t x_start, uint16_t y_start, uint16_t x_end, uint16_t y_end
     }
 
     LCD_SPI_SetDisplayWindow(x_start, x_end, y_start, y_end);
-    // LCD_SPI_WriteRAM_Prepare();
 
     while (1) {
         for (i = 0; i < size / 2; i++) {
@@ -74265,7 +74247,6 @@ void showpic_a()
 {
 
     LCD_SPI_SetDisplayWindow(0, XDP - 1, 0, YDP - 1);
-    LCD_SPI_WriteRAM_Prepare();
 
     if (sizeof(gImage_1) > 65535) {
         spi_dma_push(gImage_1, 65535);
