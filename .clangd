@@ -1,0 +1,11 @@
+CompileFlags:
+    Add:
+        - -ID:\gcc-arm-none-2\14.2\arm-none-eabi\include\newlib-nano
+        - -ID:\gcc-arm-none-2\14.2\arm-none-eabi\include\c++\14.2.1
+        - -ID:\gcc-arm-none-2\14.2\arm-none-eabi\include\c++\14.2.1\arm-none-eabi\thumb\v7e-m+fp\softfp
+        - -ID:\gcc-arm-none-2\14.2\arm-none-eabi\include\c++\14.2.1\backward
+        - -ID:\gcc-arm-none-2\14.2\lib\gcc\arm-none-eabi\14.2.1\include
+        - -ID:\gcc-arm-none-2\14.2\lib\gcc\arm-none-eabi\14.2.1\include-fixed
+        - -ID:\gcc-arm-none-2\14.2\arm-none-eabi\include
+    CompilationDatabase: ./build/Debug
+    Compiler: D:\gcc-arm-none-2\14.2\bin\arm-none-eabi-g++.exe

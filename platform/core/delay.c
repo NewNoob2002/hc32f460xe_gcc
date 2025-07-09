@@ -1,5 +1,4 @@
 //#include "lvgl.h"
-#include <hc32_ddl.h>
 #include "delay.h"
 #ifndef USE_FREERTOS
 

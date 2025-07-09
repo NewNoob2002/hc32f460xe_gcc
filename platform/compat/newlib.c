@@ -220,4 +220,30 @@ __attribute__((weak)) int _write(int file, char *ptr, int len)
   errno = EBADF;
   return -1;
 }
+
+__attribute__((weak)) void _exit(int status)
+{
+  // For embedded systems, we typically can't actually exit
+  // Instead, we enter an infinite loop or reset the system
+  
+  // Disable interrupts to prevent further execution
+  __asm volatile ("cpsid i");
+  
+  // Enter infinite loop
+  while (1) {
+    // Optionally, you could implement a system reset here
+    // For now, just loop forever
+    __asm volatile ("nop");
+  }
+}
+
+__attribute__((weak)) void _init(void)
+{
+  // Initialization function
+  // For most embedded applications, this can be empty
+  // Any global constructor initialization is handled elsewhere
+  
+  // Add any system-specific initialization here if needed
+  // For now, this is a no-op
+}
  
