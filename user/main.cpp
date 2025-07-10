@@ -18,9 +18,10 @@ void loopTask()
     softWire.beginTransmission(0x0B);
     softWire.write(0x16);
     softWire.endTransmission();
-    softWire.requestFrom(0x0B, 1, true);
+    softWire.requestFrom(0x0B, 2, true);
     uint8_t data = softWire.read();
-    Serial.printf("data: 0x%02X\n", data);
+    uint8_t data2 = softWire.read();
+    Serial.printf("data: 0x%02X, 0x%02X\n", data, data2);
 }
 
 void demonstrateBusScan() {
@@ -47,7 +48,7 @@ int main()
     }
     
     // 设置I2C时钟频率为100kHz
-    softWire.setClock(100000);
+    softWire.setClock(200000);
     Serial.println("I2C clock set to 100kHz");
 
     demonstrateBusScan();

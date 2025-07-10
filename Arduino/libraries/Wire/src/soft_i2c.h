@@ -4,8 +4,8 @@
 #include "Arduino.h"
 #include "core_debug.h"
 
-// 软件I2C配置
-#define SOFT_I2C_DELAY_US      2     // I2C时序延时(微秒)
+// 软件I2C配置 - 寄存器优化版本
+#define SOFT_I2C_DELAY_US      1     // I2C时序延时(微秒) - 寄存器优化，可用更小延时
 #define SOFT_I2C_TIMEOUT       1000  // 超时时间(毫秒)
 #define SOFT_I2C_MAX_RETRIES   3     // 最大重试次数
 
@@ -28,14 +28,28 @@ private:
     uint32_t _delay_us;     // 时序延时
     bool _initialized;      // 初始化标志
     
-    // 低级I2C时序控制函数
-    void i2c_delay(void);
-    void sda_high(void);
-    void sda_low(void);
-    void scl_high(void);
-    void scl_low(void);
-    bool read_sda(void);
-    bool read_scl(void);
+    // 寄存器直接操作优化 - 高速GPIO控制
+    volatile uint16_t *_sda_podr;     // SDA输出数据寄存器
+    volatile uint16_t *_sda_poer;     // SDA输出使能寄存器
+    volatile uint16_t *_sda_pidr;     // SDA输入数据寄存器
+    volatile uint16_t *_scl_podr;     // SCL输出数据寄存器
+    volatile uint16_t *_scl_poer;     // SCL输出使能寄存器
+    volatile uint16_t *_scl_pidr;     // SCL输入数据寄存器
+    
+    uint16_t _sda_pin_mask;           // SDA引脚位掩码
+    uint16_t _scl_pin_mask;           // SCL引脚位掩码
+    
+    // 低级I2C时序控制函数 - 寄存器优化版本
+    inline void i2c_delay(void);
+    inline void sda_high(void);
+    inline void sda_low(void);
+    inline void scl_high(void);
+    inline void scl_low(void);
+    inline bool read_sda(void);
+    inline bool read_scl(void);
+    
+    // 寄存器地址计算和初始化
+    void init_register_pointers(void);
     
     // I2C协议函数
     void i2c_start(void);
@@ -50,10 +64,10 @@ private:
 
 public:
     /**
-     * 构造函数
+     * 构造函数 - 寄存器优化版本
      * @param sda_pin SDA引脚
      * @param scl_pin SCL引脚
-     * @param delay_us 时序延时(微秒)，默认5us对应100kHz
+     * @param delay_us 时序延时(微秒)，默认1us支持高达800kHz传输
      */
     SoftWire(gpio_pin_t sda_pin, gpio_pin_t scl_pin, uint32_t delay_us = SOFT_I2C_DELAY_US);
     

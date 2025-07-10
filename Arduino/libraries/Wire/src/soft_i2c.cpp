@@ -1,49 +1,81 @@
 #include "soft_i2c.h"
+#include "drivers/gpio/gpio.h"
+
+// HC32F460 GPIO寄存器基地址定义
+#define HC32_GPIO_BASE      (0x40053800ul)
+#define HC32_PODR_OFFSET    (0x0004ul)    // 输出数据寄存器偏移
+#define HC32_POER_OFFSET    (0x0006ul)    // 输出使能寄存器偏移
+#define HC32_PIDR_OFFSET    (0x0000ul)    // 输入数据寄存器偏移
 
 // 构造函数
 SoftWire::SoftWire(gpio_pin_t sda_pin, gpio_pin_t scl_pin, uint32_t delay_us) 
     : _sda_pin(sda_pin), _scl_pin(scl_pin), _delay_us(delay_us), _initialized(false),
+      _sda_podr(nullptr), _sda_poer(nullptr), _sda_pidr(nullptr),
+      _scl_podr(nullptr), _scl_poer(nullptr), _scl_pidr(nullptr),
+      _sda_pin_mask(0), _scl_pin_mask(0),
       _tx_address(0), _tx_buffer_length(0), _rx_buffer_length(0), _rx_buffer_index(0) {
 }
 
-// ==================== 私有函数：基础时序控制 ====================
+// ==================== 寄存器指针初始化 ====================
 
-void SoftWire::i2c_delay(void) {
-    delay_us(_delay_us);
+void SoftWire::init_register_pointers(void) {
+    // 获取SDA引脚信息
+    const pin_info_t& sda_info = PIN_MAP[_sda_pin];
+    _sda_pin_mask = sda_info.bit_mask();
+    uint32_t sda_port_base = HC32_GPIO_BASE + ((uint32_t)sda_info.port * 0x10ul);
+    _sda_podr = (volatile uint16_t*)(sda_port_base + HC32_PODR_OFFSET);
+    _sda_poer = (volatile uint16_t*)(sda_port_base + HC32_POER_OFFSET);
+    _sda_pidr = (volatile uint16_t*)(sda_port_base + HC32_PIDR_OFFSET);
+    
+    // 获取SCL引脚信息
+    const pin_info_t& scl_info = PIN_MAP[_scl_pin];
+    _scl_pin_mask = scl_info.bit_mask();
+    uint32_t scl_port_base = HC32_GPIO_BASE + ((uint32_t)scl_info.port * 0x10ul);
+    _scl_podr = (volatile uint16_t*)(scl_port_base + HC32_PODR_OFFSET);
+    _scl_poer = (volatile uint16_t*)(scl_port_base + HC32_POER_OFFSET);
+    _scl_pidr = (volatile uint16_t*)(scl_port_base + HC32_PIDR_OFFSET);
+    
+    CORE_DEBUG_PRINTF("SoftWire: SDA P%c%d mask=0x%04X, SCL P%c%d mask=0x%04X\n",
+                     'A' + sda_info.port, sda_info.bit_pos, _sda_pin_mask,
+                     'A' + scl_info.port, scl_info.bit_pos, _scl_pin_mask);
 }
 
-void SoftWire::sda_high(void) {
-    noInterrupts();
-    pinMode(_sda_pin, INPUT_PULLUP);  // 设置为输入上拉，相当于高阻态
-    interrupts();
+// ==================== 私有函数：基础时序控制 - 寄存器优化版本 ====================
+
+inline void SoftWire::i2c_delay(void) {
+    if (_delay_us > 0) {
+        delay_us(_delay_us);
+    }
 }
 
-void SoftWire::sda_low(void) {
-    noInterrupts();
-    digitalWrite(_sda_pin, LOW);
-    pinMode(_sda_pin, OUTPUT);
-    interrupts();
+inline void SoftWire::sda_high(void) {
+    // 设置为输入模式（高阻态），依靠外部上拉电阻
+    *_sda_poer &= ~_sda_pin_mask;  // 禁用输出
 }
 
-void SoftWire::scl_high(void) {
-    noInterrupts();
-    pinMode(_scl_pin, INPUT_PULLUP);  // 设置为输入上拉，相当于高阻态
-    interrupts();
+inline void SoftWire::sda_low(void) {
+    // 设置为输出低电平
+    *_sda_podr &= ~_sda_pin_mask;  // 输出数据设为0
+    *_sda_poer |= _sda_pin_mask;   // 使能输出
 }
 
-void SoftWire::scl_low(void) {
-    noInterrupts();
-    digitalWrite(_scl_pin, LOW);
-    pinMode(_scl_pin, OUTPUT);
-    interrupts();
+inline void SoftWire::scl_high(void) {
+    // 设置为输入模式（高阻态），依靠外部上拉电阻
+    *_scl_poer &= ~_scl_pin_mask;  // 禁用输出
 }
 
-bool SoftWire::read_sda(void) {
-    return digitalRead(_sda_pin) == HIGH;
+inline void SoftWire::scl_low(void) {
+    // 设置为输出低电平
+    *_scl_podr &= ~_scl_pin_mask;  // 输出数据设为0
+    *_scl_poer |= _scl_pin_mask;   // 使能输出
 }
 
-bool SoftWire::read_scl(void) {
-    return digitalRead(_scl_pin) == HIGH;
+inline bool SoftWire::read_sda(void) {
+    return (*_sda_pidr & _sda_pin_mask) != 0;
+}
+
+inline bool SoftWire::read_scl(void) {
+    return (*_scl_pidr & _scl_pin_mask) != 0;
 }
 
 bool SoftWire::wait_scl_high(uint32_t timeout_us) {
@@ -157,7 +189,25 @@ bool SoftWire::begin(void) {
         return true;
     }
     
-    // 初始化引脚为输入上拉（高阻态）
+    // 初始化寄存器指针
+    init_register_pointers();
+    
+    // 配置引脚为GPIO功能
+    stc_port_init_t port_init;
+    port_init.enPinMode = Pin_Mode_In;        // 初始为输入模式
+    port_init.enLatch = Disable;
+    port_init.enExInt = Disable;
+    port_init.enInvert = Disable;
+    port_init.enPullUp = Enable;              // 使能内部上拉
+    port_init.enPinDrv = Pin_Drv_H;           // 高驱动能力
+    port_init.enPinOType = Pin_OType_Cmos;    // CMOS输出
+    port_init.enPinSubFunc = Disable;
+    
+    // 初始化SDA和SCL引脚
+    GPIO_Init(_sda_pin, &port_init);
+    GPIO_Init(_scl_pin, &port_init);
+    
+    // 初始化引脚为高阻态
     sda_high();
     scl_high();
     
@@ -171,7 +221,8 @@ bool SoftWire::begin(void) {
     }
     
     _initialized = true;
-    CORE_DEBUG_PRINTF("SoftWire: Initialized on SDA=%d, SCL=%d\n", _sda_pin, _scl_pin);
+    CORE_DEBUG_PRINTF("SoftWire: Register-optimized init complete, SDA=%d, SCL=%d, delay=%ldus\n", 
+                     _sda_pin, _scl_pin, _delay_us);
     return true;
 }
 
@@ -188,17 +239,28 @@ void SoftWire::end(void) {
 }
 
 void SoftWire::setClock(uint32_t frequency) {
-    if (frequency > 400000) {
-        frequency = 400000;  // 最大400kHz
+    if (frequency > 800000) {
+        frequency = 800000;  // 寄存器优化后最大800kHz
     } else if (frequency < 10000) {
         frequency = 10000;   // 最小10kHz
     }
     
-    // 计算延时时间：半个时钟周期
-    _delay_us = 500000 / frequency;  // 微秒
-    if (_delay_us < 1) {
-        _delay_us = 1;
+    // 寄存器操作优化的延时计算
+    // 寄存器操作比Arduino函数快约10-20倍，大幅减少所需延时
+    uint32_t half_period_us = 500000 / frequency;
+    
+    if (frequency > 400000) {
+        // 高频模式：寄存器操作本身提供足够延时
+        _delay_us = (half_period_us > 1) ? (half_period_us - 1) : 0;
+    } else if (frequency > 200000) {
+        // 中高频模式：适度减少延时
+        _delay_us = (half_period_us > 2) ? (half_period_us - 2) : 1;
+    } else {
+        // 标准模式：保守的延时设置
+        _delay_us = half_period_us;
     }
+    
+    CORE_DEBUG_PRINTF("SoftWire: Clock set to %ldHz, optimized delay=%ldus\n", frequency, _delay_us);
 }
 
 bool SoftWire::isDeviceOnline(uint8_t address, uint8_t retries) {
