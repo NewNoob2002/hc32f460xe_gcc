@@ -25,6 +25,7 @@
 #include <math.h>
 
 #include "core_types.h"
+#include "mcu_config.h"
 
 // some libraries and sketches depend on this AVR stuff,
 // assuming Arduino.h or WProgram.h automatically includes it...

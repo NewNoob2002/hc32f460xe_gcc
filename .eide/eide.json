@@ -150,7 +150,7 @@
                 "name": "Wire",
                 "files": [
                   {
-                    "path": "Arduino/libraries/Wire/src/Wire.cpp"
+                    "path": "Arduino/libraries/Wire/src/soft_i2c.cpp"
                   }
                 ],
                 "folders": []
@@ -385,6 +385,15 @@
               }
             ],
             "folders": []
+          },
+          {
+            "name": "Bq40z50",
+            "files": [
+              {
+                "path": "libraries/Bq40z50/Fuelgauge.cpp"
+              }
+            ],
+            "folders": []
           }
         ]
       }
@@ -409,7 +418,9 @@
         "hal/STM32F10x_StdPeriph_Driver/src/stm32f10x_sdio.c",
         "hal/STM32F10x_StdPeriph_Driver/src/stm32f10x_wwdg.c",
         "<virtual_root>/User/bsp/LCD.c",
-        "<virtual_root>/User/bsp/MYSPI.c"
+        "<virtual_root>/User/bsp/MYSPI.c",
+        "<virtual_root>/User/bsp/mp2762.cpp",
+        "<virtual_root>/User/bsp/bq40z50.cpp"
       ],
       "toolchain": "GCC",
       "compileConfig": {
@@ -505,7 +516,8 @@
           "libraries/lwmem/src/include",
           "user/bsp/inc",
           "Arduino/libraries/Timer0/src",
-          "Arduino/libraries/Wire/src"
+          "Arduino/libraries/Wire/src",
+          "libraries/Bq40z50"
         ],
         "libList": [],
         "defineList": [

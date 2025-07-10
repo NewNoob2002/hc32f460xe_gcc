@@ -88,6 +88,7 @@ void pinMode(gpio_pin_t dwPin, uint32_t dwMode)
         return;
     case OUTPUT:
         pinConf.enPinMode = Pin_Mode_Out;
+        pinConf.enPinDrv = Pin_Drv_H;        
         break;
     default:
         CORE_ASSERT_FAIL("pinMode: invalid pin mode. Must be INPUT, INPUT_PULLUP, INPUT_ANALOG or OUTPUT");
