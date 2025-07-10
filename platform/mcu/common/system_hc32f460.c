@@ -20,7 +20,7 @@
  * Include files
  ******************************************************************************/
 #include "hc32_common.h"
-
+#include "hc32f460_utility.h"
 /**
  *******************************************************************************
  ** \addtogroup Hc32f460SystemGroup
@@ -38,7 +38,10 @@
  ******************************************************************************/
 uint32_t HRC_VALUE = HRC_16MHz_VALUE;
 uint32_t SystemCoreClock = MRC_VALUE;
-
+#ifndef VECT_TAB_OFFSET
+///#define VECT_TAB_OFFSET                 (0x0UL)     /*!< This value must be a multiple of 0x400. */
+#define VECT_TAB_OFFSET                 (0x8000UL)     /*!< This value must be a multiple of 0x400. */
+#endif
 /**
  ******************************************************************************
  ** \brief  Setup the microcontroller system. Initialize the System and update
@@ -54,6 +57,10 @@ void SystemInit(void)
 #endif
 
     SystemCoreClockUpdate();
+    __disable_irq();
+    SCB->VTOR = VECT_TAB_OFFSET;    /* Vector Table Relocation */
+    __enable_irq();
+    SysTick_Resume();
 }
 
 void SystemCoreClockUpdate(void)  // Update SystemCoreClock variable

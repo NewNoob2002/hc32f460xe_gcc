@@ -9,6 +9,7 @@
 #include "core_debug.h"
 #include "hc32_ddl.h"
 
+#define TWO_WIRE_DEBUG
 /**
  * the wire library has a end() function.
  * This macro signals to user code that it is available
@@ -86,7 +87,7 @@ public:
   /**
    * @brief initialize the Wire library and join a I2C bus as a controller
    */
-  void begin();
+  void begin(uint32_t baud = 100000);
 
   /**
    * @brief initialize the Wire library and join a I2C bus as a peripheral
@@ -143,7 +144,6 @@ public:
   uint8_t requestFrom(uint8_t address, size_t quantity, bool stopBit = true)
   {
     const TwoWireStatus status = _requestFrom(address, quantity, stopBit);
-    (void)status;
     CORE_DEBUG_PRINTF("requestFrom addr=%02X status=%d\n", address, status);
     return available();
   }

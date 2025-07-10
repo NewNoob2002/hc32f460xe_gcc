@@ -14,8 +14,12 @@ TwoWire Wire(M4_I2C1, PA8, PA9);
 /**
  * debug print for TwoWire class
  */
+#ifdef TWO_WIRE_DEBUG
 #define TWO_WIRE_DEBUG_PRINTF(fmt, ...)                                              \
-//  Serial.printf("[I2C%d] " fmt, I2C_UNIT_TO_N(this->peripheral), ##__VA_ARGS__)
+        printf("[I2C%d] " fmt, I2C_UNIT_TO_N(this->peripheral), ##__VA_ARGS__)
+#else
+#define TWO_WIRE_DEBUG_PRINTF(fmt, ...)
+#endif
 /**
  * @brief clone of I2C_TransData, modified to return TwoWireStatus instead of en_result_t
  * @param periph I2C peripheral
@@ -125,7 +129,7 @@ TwoWire::TwoWire(M4_I2C_TypeDef *peripheral, const gpio_pin_t sda, const gpio_pi
   this->scl_pin = scl;
 }
 
-void TwoWire::begin()
+void TwoWire::begin(uint32_t baud)
 {
   // ensure device & pins are configured
   CORE_ASSERT(this->peripheral != nullptr, "device not set");
@@ -172,7 +176,7 @@ void TwoWire::begin()
 
   // configure peripheral
   // TODO: i2c configuration is hard-coded here
-  stc_i2c_init_t init = {.u32ClockDiv = I2C_CLK_DIV8, .u32Baudrate = 400000, .u32SclTime = 0};
+  stc_i2c_init_t init = {.u32ClockDiv = I2C_CLK_DIV8, .u32Baudrate = baud, .u32SclTime = 0};
   float32_t baud_error;
   if(I2C_Init(this->peripheral, &init, &baud_error) != Ok)
   {
@@ -208,7 +212,7 @@ TwoWireStatus TwoWire::beginTransmission(uint8_t address)
   en_result_t rc = I2C_Start(this->peripheral, WIRE_TIMEOUT);
   if (rc == ErrorTimeout)
   {
-    TWO_WIRE_DEBUG_PRINTF("timeout on I2C_Start\n");
+    TWO_WIRE_DEBUG_PRINTF("I2C_Start Error: %s\n", en_result_to_string(rc));
 		I2C_Stop(this->peripheral, WIRE_TIMEOUT);
     I2C_Cmd(this->peripheral, Disable);
     return I2C_TIMEOUT;
@@ -216,14 +220,15 @@ TwoWireStatus TwoWire::beginTransmission(uint8_t address)
 
   // send address
   rc = I2C_TransAddr(this->peripheral, address, I2CDirTrans, WIRE_TIMEOUT);
-  if (rc != Ok)
+  if (rc == Ok)
   {
-    TWO_WIRE_DEBUG_PRINTF("timeout on I2C_TransAddr\n");
-		I2C_Stop(this->peripheral, WIRE_TIMEOUT);
-    I2C_Cmd(this->peripheral, Disable);
-    return I2C_TIMEOUT;
+    return I2C_SUCCESS;
   }
-	return I2C_SUCCESS;
+  TWO_WIRE_DEBUG_PRINTF("I2C_TransAddr Error: %s\n", en_result_to_string(rc));
+  I2C_Stop(this->peripheral, WIRE_TIMEOUT);
+  I2C_Cmd(this->peripheral, Disable);
+  return I2C_TIMEOUT;
+
 }
 
 TwoWireStatus TwoWire::endTransmission(bool stopBit)

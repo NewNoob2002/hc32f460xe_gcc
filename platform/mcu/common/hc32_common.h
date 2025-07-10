@@ -105,7 +105,6 @@ typedef enum en_result
     ErrorNotReady            = 10u,  ///< A requested final state is not reached
     OperationInProgress      = 11u,  ///< Indicator for operation in progress (e.g. ADC conversion not finished, DMA channel used, etc.)
 } en_result_t;
-
 /*******************************************************************************
  * Global pre-processor symbols/macros ('#define')
  ******************************************************************************/

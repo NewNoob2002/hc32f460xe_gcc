@@ -16,5 +16,10 @@ void x_printf(const char *__format, ...) {
     Serial.print(printf_buff);
 }
 
+void x_putchar(char c)
+{
+    Serial.write(c);
+}
+
 } // extern "C"
 

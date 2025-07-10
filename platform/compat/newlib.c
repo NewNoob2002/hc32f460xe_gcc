@@ -205,7 +205,7 @@ __attribute__((weak)) int _write(int file, char *ptr, int len)
   if (file == 1 || file == 2) {
     int todo;
     for (todo = 0; todo < len; todo++) {
-      x_printf("%c", *ptr++);
+      x_putchar(*ptr++);
     }
     return len;
   }

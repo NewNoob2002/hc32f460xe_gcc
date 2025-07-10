@@ -492,6 +492,12 @@ __WEAKDEF void SysTick_Resume(void)
     SysTick->CTRL  |= SysTick_CTRL_TICKINT_Msk;
 }
 
+__WEAKDEF void SysTick_Deinit(void)
+{
+    SysTick->LOAD = 0;
+    SysTick->VAL = 0;
+}
+
 /**
  *******************************************************************************
  ** \brief ddl assert error handle function

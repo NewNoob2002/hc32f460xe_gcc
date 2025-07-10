@@ -48,19 +48,18 @@ void core_init()
     PORT_DebugPortSetting(TDO_SWO, Disable);
     PORT_DebugPortSetting(TRST, Disable);
     // setup vector table offset
-    SCB->VTOR = LD_FLASH_START;
     SCB->CCR |= SCB_CCR_DIV_0_TRP_Msk; // | SCB_CCR_UNALIGN_TRP_Msk;
     // check if last reset could be reoccuring
     check_reoccuring_reset_fault();
     // setup system clock
     clock_init();
     update_system_clock_frequencies();
+    // setup systick
+    delay_init();
     // setup usart
     Serial.begin(115200);
     // setup backtrace
     cm_backtrace_init(SOFTWARE_NAME, HARDWARE_VERSION, SOFTWARE_VERSION " " SOFTWARE_BUILD_DATE " " SOFTWARE_BUILD_TIME);
-    // setup systick
-    systick_init();
 
 // // enable flash ICACHE
 #if !defined(CORE_DONT_ENABLE_ICACHE)

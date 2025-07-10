@@ -42,7 +42,7 @@
 /* Use contiguous memory regions for simple. */
 MEMORY
 {
-    FLASH (rx): ORIGIN = 0x00000000, LENGTH = (0x80000 - 0x00000000)
+    FLASH (rx): ORIGIN = 0x00008000, LENGTH = (0x80000 - 0x00008000)
     OTP (rx): ORIGIN = 0x03000C00, LENGTH = 1020
     RAM (rwx): ORIGIN = 0x1FFF8000, LENGTH = 188K
     RET_RAM (rwx): ORIGIN = 0x200F0000, LENGTH = 4K
@@ -54,16 +54,9 @@ SECTIONS
     .vectors :
     {
         KEEP(*(.vectors));
-            /* add padding to ICG start */
-            . = 0x400;
+            /* no padding since ICG is removed */
+            . = 0x280;
     } >FLASH
-        /* ICG: 0x400 - 0x41F*/
-        .icg_sec :
-        {
-            ASSERT(. == (ORIGIN(FLASH) + 0x400), "icg_sec alignment issue");
-            KEEP(*(.icg_sec));
-            ASSERT(. == (ORIGIN(FLASH) + 0x420), "icg_sec alignment issue");
-        } >FLASH
     /* append all other FLASH sections after */
     .text :
     {
