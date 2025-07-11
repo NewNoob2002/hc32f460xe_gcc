@@ -34,7 +34,7 @@ int main()
         printf("software reset\n");
     }
     wire.begin();
-    wire.setClock(200000);
+    wire.setClock(100000);
     bq40z50_begin();
     if(mp2762a_begin(&batteryState) == false)
     {
@@ -47,8 +47,7 @@ int main()
             break;
         else if(get_power_off_trigger_count() > 6)
             break;
-
-        printf("power_off_trigger_count: %d\n", get_power_off_trigger_count());
+        
         Adc1_polling();
         delay_ms(300);
     }
@@ -56,7 +55,7 @@ int main()
     Led_Power_switch(HIGH);
     MCU_ON_OFF_PIN_HIGH();
 
-    taskManager.Register(loopTask, 1000);
+    taskManager.Register(loopTask, 100);
     taskManager.Register(Led_Update, 20);
     while (true) {
         taskManager.Running(millis());
