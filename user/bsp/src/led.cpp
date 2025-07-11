@@ -10,6 +10,10 @@ void Led_Init()
     pinMode(POWER_LED_PIN, OUTPUT);
     pinMode(CHARGE_LED_PIN, OUTPUT);
     pinMode(FUNCTION_LED_PIN, OUTPUT);
+
+    digitalWrite(POWER_LED_PIN, LOW);
+    digitalWrite(CHARGE_LED_PIN, LOW);
+    digitalWrite(FUNCTION_LED_PIN, LOW);
 }
 
 //Led Update

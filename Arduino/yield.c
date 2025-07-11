@@ -17,7 +17,7 @@
 */
 
 #include "core_hooks.h"
-
+#include "power_control.h"
 /**
  * Empty yield() hook.
  *
@@ -33,5 +33,6 @@ static void __empty()
 
     // wdt reload
     core_hook_yield_wdt_reload();
+    WatchDog_feed();
 }
 void yield(void) __attribute__((weak, alias("__empty")));

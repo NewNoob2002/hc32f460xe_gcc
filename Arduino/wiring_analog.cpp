@@ -1,5 +1,4 @@
 #include "wiring_analog.h"
-#include "drivers/gpio/gpio.h" // includes drivers/adc/adc.h already
 #include "drivers/timera/timera_pwm.h"
 #include "core_debug.h"
 

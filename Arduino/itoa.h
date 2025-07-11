@@ -27,9 +27,9 @@ extern "C"
   extern char *ltoa(long value, char *string, int radix);
 
 #if __GNUC__ > 4 || (__GNUC__ == 4 && (__GNUC_MINOR__ > 9 || (__GNUC_MINOR__ == 9 && __GNUC_PATCHLEVEL__ > 2)))
-  extern char *utoa(unsigned value, char *string, int radix);
+  extern char *utoa_(unsigned value, char *string, int radix);
 #else
-  extern char *utoa(unsigned long value, char *string, int radix);
+  extern char *utoa_(unsigned long value, char *string, int radix);
 #endif
 
   extern char *ultoa(unsigned long value, char *string, int radix);

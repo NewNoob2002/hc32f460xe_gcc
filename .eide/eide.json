@@ -466,16 +466,13 @@
         "options": "null",
         "archExtensions": ""
       },
-      "uploader": "JLink",
+      "uploader": "pyOCD",
       "uploadConfig": {
         "bin": "",
+        "targetName": "hc32f460xe",
         "baseAddr": "0x08000000",
-        "cpuInfo": {
-          "vendor": "XHSC",
-          "cpuName": "HC32F460xE"
-        },
-        "proType": 1,
-        "speed": 8000,
+        "speed": "5M",
+        "config": ".eide/debug.pyocd.yaml",
         "otherCmds": ""
       },
       "uploadConfigMap": {

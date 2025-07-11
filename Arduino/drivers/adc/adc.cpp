@@ -150,7 +150,7 @@ uint16_t adc_conversion_read_result(const adc_device_t *device, const uint8_t ad
     ASSERT_CHANNEL_ID(device, adc_channel);
 
     // clear ADC conversion complete flag
-    // ADC_ClrEocFlag(device->adc.register_base, device->adc.sequence);
+    ADC_ClrEocFlag(device->adc.register_base, device->adc.sequence);
 
     // read conversion result directly from DRx register
     uint16_t *conversion_results = (uint16_t *)(&device->adc.register_base->DR0);

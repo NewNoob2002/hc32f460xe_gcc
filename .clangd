@@ -7,5 +7,12 @@ CompileFlags:
         - -ID:\gcc-arm-none-2\14.2\lib\gcc\arm-none-eabi\14.2.1\include
         - -ID:\gcc-arm-none-2\14.2\lib\gcc\arm-none-eabi\14.2.1\include-fixed
         - -ID:\gcc-arm-none-2\14.2\arm-none-eabi\include
+        - -I/Applications/ArmGNUToolchain/14.2.rel1/arm-none-eabi/arm-none-eabi/include/newlib-nano
+        - -I/Applications/ArmGNUToolchain/14.2.rel1/arm-none-eabi/arm-none-eabi/include/c++/14.2.1
+        - -I/Applications/ArmGNUToolchain/14.2.rel1/arm-none-eabi/arm-none-eabi/include/c++/14.2.1/arm-none-eabi/thumb/v7e-m+fp/softfp
+        - -I/Applications/ArmGNUToolchain/14.2.rel1/arm-none-eabi/arm-none-eabi/include/c++/14.2.1/backward
+        - -I/Applications/ArmGNUToolchain/14.2.rel1/arm-none-eabi/lib/gcc/arm-none-eabi/14.2.1/include
+        - -I/Applications/ArmGNUToolchain/14.2.rel1/arm-none-eabi/lib/gcc/arm-none-eabi/14.2.1/include-fixed
+        - -I/Applications/ArmGNUToolchain/14.2.rel1/arm-none-eabi/arm-none-eabi/include
     CompilationDatabase: ./build/Debug
-    Compiler: D:\gcc-arm-none-2\14.2\bin\arm-none-eabi-g++.exe
+    Compiler: /opt/homebrew/bin/arm-none-eabi-g++

@@ -1,10 +1,6 @@
 #include "init.h"
 #include "../drivers/sysclock/sysclock.h"
-#include "../drivers/sysclock/sysclock_util.h"
-#include "../drivers/sysclock/systick.h"
-#include "../drivers/adc/adc.h"
 #include "../core_debug.h"
-#include "../core_hooks.h"
 #include <Arduino.h>
 #include <cm_backtrace.h>
 #include "mcu_config.h"
@@ -39,8 +35,6 @@ inline void check_reoccuring_reset_fault()
     // - XTAL error, could be caused by a invalid XTAL config or a bad circuit
     CHECK_RSTCAUSE(cause.enXtalErr, "XTAL error Reset, check XTAL config and circuit");
     // CHECK_RSTCAUSE_NOT_PANIC(cause.enRstPin, "RST pin Reset");
-    // CHECK_RSTCAUSE_NOT_PANIC(cause.enPowerOn, "Power on Reset");
-    // CHECK_RSTCAUSE_NOT_PANIC(cause.enSoftware, "Software Reset");
 }
 
 void core_init()
