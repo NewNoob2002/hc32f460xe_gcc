@@ -337,6 +337,12 @@
               },
               {
                 "path": "user/bsp/src/power_control.cpp"
+              },
+              {
+                "path": "user/bsp/src/battery.cpp"
+              },
+              {
+                "path": "user/bsp/src/charger_control_new.cpp"
               }
             ],
             "folders": []
@@ -466,16 +472,13 @@
         "options": "null",
         "archExtensions": ""
       },
-      "uploader": "JLink",
+      "uploader": "pyOCD",
       "uploadConfig": {
         "bin": "",
+        "targetName": "hc32f460xe",
         "baseAddr": "0x08000000",
-        "cpuInfo": {
-          "vendor": "XHSC",
-          "cpuName": "HC32F460xE"
-        },
-        "proType": 1,
-        "speed": 8000,
+        "speed": "10M",
+        "config": ".eide/debug.pyocd.yaml",
         "otherCmds": ""
       },
       "uploadConfigMap": {
@@ -528,7 +531,8 @@
           "Arduino/libraries/Timer0/src",
           "Arduino/libraries/Wire/src",
           "libraries/Mp2762a",
-          "libraries/Bq40z50"
+          "libraries/Bq40z50",
+          "user/bsp_old"
         ],
         "libList": [],
         "defineList": [
@@ -569,7 +573,8 @@
             "output-format": "elf",
             "remove-unused-input-sections": true,
             "LIB_FLAGS": "-lm",
-            "$toolName": "auto"
+            "$toolName": "auto",
+            "LD_FLAGS": "-Wl,-u,_printf_float"
           }
         }
       }

@@ -1,8 +1,7 @@
 #ifndef SOFT_I2C_H_
 #define SOFT_I2C_H_
 
-#include "Arduino.h"
-#include "core_debug.h"
+#include <core_types.h>
 
 // 定义I2C引脚 - 根据你的硬件连接修改
 #define SOFT_I2C_SDA_PIN    PA8   // SDA引脚

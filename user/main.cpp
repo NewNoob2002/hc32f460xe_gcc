@@ -2,28 +2,21 @@
 #include "delay.h"
 #include "init/init.h"
 #include "MillisTaskManager.h"
+#include "mcu_define.h"
 #include "soft_i2c.h"
-#include "bq40z50.h"
-#include "mp2762a.h"
+#include "battery.h"
 #include "led.h"
 #include "power_control.h"
 
 static MillisTaskManager taskManager;
 
+present_device present_devices;
+online_device online_devices;
+SystemParameter DisplayPannelParameter;
+
 void loopTask()
 {
-    uint8_t status = mp2762getChargeStatus();
-    printf("charge status: %d\n", status);
-    Adc1_polling();
-    if (status == 0)
-    {
-        SetChargeLedBlink(0);
-        Led_Charge_switch(LOW);
-    }
-    else if (status == 1 || status == 2)
-    {
-        SetChargeLedBlink(1000);
-    }
+    battery_update();
 }
 
 int main()
@@ -40,18 +33,10 @@ int main()
         MCU_ON_OFF_PIN_HIGH();
         printf("software reset\n");
     }
-    if(cause.enRstPin == Set)
-    {
-        printf("reset pin reset\n");
-    }
-    if(cause.enPowerOn== Set)
-    {
-        printf("power on reset\n");
-    }
     wire.begin();
     wire.setClock(200000);
-    bq40z50Begin(wire);
-    if(mp2762aBegin(wire) == false)
+    bq40z50_begin();
+    if(mp2762a_begin(&batteryState) == false)
     {
         //TODO: set a flag to change firmware to V1.3.0
     }

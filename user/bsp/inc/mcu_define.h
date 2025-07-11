@@ -15,26 +15,16 @@ typedef enum {
 typedef struct _present_device
 {
     bool i2c = true;
-    bool spi = true;
     bool bq40z50 = true;
     bool mp2762 = true;
-    bool oled = false;
-    bool adc = true;
-    bool watchDog = true;
-    bool button = true;
 }present_device;
 
 typedef struct _online_device
 {
     bool i2c = false;
     bool i2c_slave = false;
-    bool spi = false;
     bool bq40z50 = false;
     bool mp2762 = false;
-    bool oled = false;
-    bool adc = false;
-    bool watchDog = false;
-    bool button = false;
 }online_device;
 
 typedef struct tag_SystemParameter_s
@@ -56,6 +46,17 @@ enum chargeStatus
     normalCharge,
     fastCharge,
 };
+
+typedef struct _BatteryState
+{
+    float batteryLevelPercent = 50.0; 
+    // SOC measured from fuel gauge, in %. Used in multiple places (display, serial debug, log)
+    float batteryVoltage = 0.0;
+    float batteryChargingPercentPerHour = 50.0;
+    float batteryTempC = 0.0;
+    uint8_t chargeStatus = notCharge;
+    bool isCharging = false;
+} BatteryState, *pBatteryState;
 
 typedef struct _ledState{
     bool isOn;

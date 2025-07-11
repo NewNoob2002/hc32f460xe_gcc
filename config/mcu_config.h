@@ -16,6 +16,16 @@
 /*power_key_pin*/
 #define POWER_KEY_PIN PA0
 
+/*charger_control*/
+#define CHARGER_ENABLE_PIN PA4
+#define CHARGER_CTRL_PIN1 PB7
+#define CHARGER_CTRL_PIN2 PB6
+#define CHARGER_SWITCH_PIN PB10
+
+#define CHARGER_ADC_DETECT_PIN PA1
+
+#define USB_SWITCH_PIN PB8
+
 /*watchdog_pin*/
 #define WATCHDOG_PIN PA6
 
@@ -27,5 +37,6 @@
 extern present_device present_devices;
 extern online_device online_devices;
 extern SystemParameter DisplayPannelParameter;
+extern BatteryState batteryState;
 
 #endif
