@@ -14,10 +14,10 @@
 /*power_control_pin*/
 #define MCU_ON_OFF_BATTERY_PIN PB3
 /*power_key_pin*/
-#define POWER_KEY_PIN PA6
+#define POWER_KEY_PIN PA0
 
 /*watchdog_pin*/
-#define WATCHDOG_PIN PB4
+#define WATCHDOG_PIN PA6
 
 /*Status LED*/
 #define POWER_LED_PIN PC13
