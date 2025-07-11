@@ -4,6 +4,9 @@
 #include "Arduino.h"
 #include "core_debug.h"
 
+// 定义I2C引脚 - 根据你的硬件连接修改
+#define SOFT_I2C_SDA_PIN    PA8   // SDA引脚
+#define SOFT_I2C_SCL_PIN    PA9   // SCL引脚
 // 软件I2C配置 - 寄存器优化版本
 #define SOFT_I2C_DELAY_US      1     // I2C时序延时(微秒) - 寄存器优化，可用更小延时
 #define SOFT_I2C_TIMEOUT       1000  // 超时时间(毫秒)
@@ -21,7 +24,7 @@ enum SoftI2CStatus : uint8_t {
 /**
  * 软件I2C类 - 兼容Wire接口
  */
-class SoftWire {
+class Wire {
 private:
     gpio_pin_t _sda_pin;    // SDA引脚
     gpio_pin_t _scl_pin;    // SCL引脚
@@ -69,7 +72,7 @@ public:
      * @param scl_pin SCL引脚
      * @param delay_us 时序延时(微秒)，默认1us支持高达800kHz传输
      */
-    SoftWire(gpio_pin_t sda_pin, gpio_pin_t scl_pin, uint32_t delay_us = SOFT_I2C_DELAY_US);
+    Wire(gpio_pin_t sda_pin, gpio_pin_t scl_pin, uint32_t delay_us = SOFT_I2C_DELAY_US);
     
     /**
      * 初始化软件I2C
@@ -244,4 +247,6 @@ private:
     uint8_t _rx_buffer_index;
 };
 
+
+extern Wire wire;
 #endif // SOFT_I2C_H_

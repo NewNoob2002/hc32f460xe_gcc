@@ -7,8 +7,9 @@
 #define HC32_POER_OFFSET    (0x0006ul)    // 输出使能寄存器偏移
 #define HC32_PIDR_OFFSET    (0x0000ul)    // 输入数据寄存器偏移
 
+Wire wire(SOFT_I2C_SDA_PIN, SOFT_I2C_SCL_PIN);
 // 构造函数
-SoftWire::SoftWire(gpio_pin_t sda_pin, gpio_pin_t scl_pin, uint32_t delay_us) 
+Wire::Wire(gpio_pin_t sda_pin, gpio_pin_t scl_pin, uint32_t delay_us) 
     : _sda_pin(sda_pin), _scl_pin(scl_pin), _delay_us(delay_us), _initialized(false),
       _sda_podr(nullptr), _sda_poer(nullptr), _sda_pidr(nullptr),
       _scl_podr(nullptr), _scl_poer(nullptr), _scl_pidr(nullptr),
@@ -18,7 +19,7 @@ SoftWire::SoftWire(gpio_pin_t sda_pin, gpio_pin_t scl_pin, uint32_t delay_us)
 
 // ==================== 寄存器指针初始化 ====================
 
-void SoftWire::init_register_pointers(void) {
+void Wire::init_register_pointers(void) {
     // 获取SDA引脚信息
     const pin_info_t& sda_info = PIN_MAP[_sda_pin];
     _sda_pin_mask = sda_info.bit_mask();
@@ -42,43 +43,43 @@ void SoftWire::init_register_pointers(void) {
 
 // ==================== 私有函数：基础时序控制 - 寄存器优化版本 ====================
 
-inline void SoftWire::i2c_delay(void) {
+inline void Wire::i2c_delay(void) {
     if (_delay_us > 0) {
         delay_us(_delay_us);
     }
 }
 
-inline void SoftWire::sda_high(void) {
+inline void Wire::sda_high(void) {
     // 设置为输入模式（高阻态），依靠外部上拉电阻
     *_sda_poer &= ~_sda_pin_mask;  // 禁用输出
 }
 
-inline void SoftWire::sda_low(void) {
+inline void Wire::sda_low(void) {
     // 设置为输出低电平
     *_sda_podr &= ~_sda_pin_mask;  // 输出数据设为0
     *_sda_poer |= _sda_pin_mask;   // 使能输出
 }
 
-inline void SoftWire::scl_high(void) {
+inline void Wire::scl_high(void) {
     // 设置为输入模式（高阻态），依靠外部上拉电阻
     *_scl_poer &= ~_scl_pin_mask;  // 禁用输出
 }
 
-inline void SoftWire::scl_low(void) {
+inline void Wire::scl_low(void) {
     // 设置为输出低电平
     *_scl_podr &= ~_scl_pin_mask;  // 输出数据设为0
     *_scl_poer |= _scl_pin_mask;   // 使能输出
 }
 
-inline bool SoftWire::read_sda(void) {
+inline bool Wire::read_sda(void) {
     return (*_sda_pidr & _sda_pin_mask) != 0;
 }
 
-inline bool SoftWire::read_scl(void) {
+inline bool Wire::read_scl(void) {
     return (*_scl_pidr & _scl_pin_mask) != 0;
 }
 
-bool SoftWire::wait_scl_high(uint32_t timeout_us) {
+bool Wire::wait_scl_high(uint32_t timeout_us) {
     uint32_t start_time = micros();
     while (!read_scl()) {
         if (micros() - start_time > timeout_us) {
@@ -91,7 +92,7 @@ bool SoftWire::wait_scl_high(uint32_t timeout_us) {
 
 // ==================== 私有函数：I2C协议实现 ====================
 
-void SoftWire::i2c_start(void) {
+void Wire::i2c_start(void) {
     sda_high();
     scl_high();
     i2c_delay();
@@ -101,7 +102,7 @@ void SoftWire::i2c_start(void) {
     i2c_delay();
 }
 
-void SoftWire::i2c_stop(void) {
+void Wire::i2c_stop(void) {
     sda_low();
     scl_low();
     i2c_delay();
@@ -112,7 +113,7 @@ void SoftWire::i2c_stop(void) {
     i2c_delay();
 }
 
-bool SoftWire::i2c_write_bit(bool bit) {
+bool Wire::i2c_write_bit(bool bit) {
     // 设置数据线
     if (bit) {
         sda_high();
@@ -133,7 +134,7 @@ bool SoftWire::i2c_write_bit(bool bit) {
     return true;
 }
 
-bool SoftWire::i2c_read_bit(void) {
+bool Wire::i2c_read_bit(void) {
     bool bit;
     
     sda_high();  // 释放数据线
@@ -150,7 +151,7 @@ bool SoftWire::i2c_read_bit(void) {
     return bit;
 }
 
-bool SoftWire::i2c_write_byte(uint8_t data) {
+bool Wire::i2c_write_byte(uint8_t data) {
     bool ack;
     
     // 发送8位数据（MSB先发送）
@@ -166,7 +167,7 @@ bool SoftWire::i2c_write_byte(uint8_t data) {
     return ack;
 }
 
-uint8_t SoftWire::i2c_read_byte(bool ack) {
+uint8_t Wire::i2c_read_byte(bool ack) {
     uint8_t data = 0;
     
     // 读取8位数据（MSB先接收）
@@ -184,7 +185,7 @@ uint8_t SoftWire::i2c_read_byte(bool ack) {
 
 // ==================== 公共函数：基础操作 ====================
 
-bool SoftWire::begin(void) {
+bool Wire::begin(void) {
     if (_initialized) {
         return true;
     }
@@ -226,7 +227,7 @@ bool SoftWire::begin(void) {
     return true;
 }
 
-void SoftWire::end(void) {
+void Wire::end(void) {
     if (!_initialized) {
         return;
     }
@@ -238,7 +239,7 @@ void SoftWire::end(void) {
     _initialized = false;
 }
 
-void SoftWire::setClock(uint32_t frequency) {
+void Wire::setClock(uint32_t frequency) {
     if (frequency > 800000) {
         frequency = 800000;  // 寄存器优化后最大800kHz
     } else if (frequency < 10000) {
@@ -263,7 +264,7 @@ void SoftWire::setClock(uint32_t frequency) {
     CORE_DEBUG_PRINTF("SoftWire: Clock set to %ldHz, optimized delay=%ldus\n", frequency, _delay_us);
 }
 
-bool SoftWire::isDeviceOnline(uint8_t address, uint8_t retries) {
+bool Wire::isDeviceOnline(uint8_t address, uint8_t retries) {
     if (!_initialized) {
         return false;
     }
@@ -285,7 +286,7 @@ bool SoftWire::isDeviceOnline(uint8_t address, uint8_t retries) {
 
 // ==================== 8位数据读写 ====================
 
-SoftI2CStatus SoftWire::writeRegister8(uint8_t device_addr, uint8_t reg_addr, uint8_t data) {
+SoftI2CStatus Wire::writeRegister8(uint8_t device_addr, uint8_t reg_addr, uint8_t data) {
     if (!_initialized) {
         return SOFT_I2C_BUS_ERROR;
     }
@@ -314,7 +315,7 @@ SoftI2CStatus SoftWire::writeRegister8(uint8_t device_addr, uint8_t reg_addr, ui
     return SOFT_I2C_SUCCESS;
 }
 
-SoftI2CStatus SoftWire::readRegister8(uint8_t device_addr, uint8_t reg_addr, uint8_t* data) {
+SoftI2CStatus Wire::readRegister8(uint8_t device_addr, uint8_t reg_addr, uint8_t* data) {
     if (!_initialized || !data) {
         return SOFT_I2C_BUS_ERROR;
     }
@@ -344,7 +345,7 @@ SoftI2CStatus SoftWire::readRegister8(uint8_t device_addr, uint8_t reg_addr, uin
     return SOFT_I2C_SUCCESS;
 }
 
-SoftI2CStatus SoftWire::writeBytes(uint8_t device_addr, uint8_t reg_addr, const uint8_t* data, uint8_t length) {
+SoftI2CStatus Wire::writeBytes(uint8_t device_addr, uint8_t reg_addr, const uint8_t* data, uint8_t length) {
     if (!_initialized || !data || length == 0) {
         return SOFT_I2C_BUS_ERROR;
     }
@@ -375,7 +376,7 @@ SoftI2CStatus SoftWire::writeBytes(uint8_t device_addr, uint8_t reg_addr, const 
     return SOFT_I2C_SUCCESS;
 }
 
-SoftI2CStatus SoftWire::readBytes(uint8_t device_addr, uint8_t reg_addr, uint8_t* data, uint8_t length) {
+SoftI2CStatus Wire::readBytes(uint8_t device_addr, uint8_t reg_addr, uint8_t* data, uint8_t length) {
     if (!_initialized || !data || length == 0) {
         return SOFT_I2C_BUS_ERROR;
     }
@@ -409,14 +410,14 @@ SoftI2CStatus SoftWire::readBytes(uint8_t device_addr, uint8_t reg_addr, uint8_t
 
 // ==================== 16位数据读写 ====================
 
-SoftI2CStatus SoftWire::writeRegister16BE(uint8_t device_addr, uint8_t reg_addr, uint16_t data) {
+SoftI2CStatus Wire::writeRegister16BE(uint8_t device_addr, uint8_t reg_addr, uint16_t data) {
     uint8_t bytes[2];
     bytes[0] = (data >> 8) & 0xFF;   // 高字节
     bytes[1] = data & 0xFF;          // 低字节
     return writeBytes(device_addr, reg_addr, bytes, 2);
 }
 
-SoftI2CStatus SoftWire::readRegister16BE(uint8_t device_addr, uint8_t reg_addr, uint16_t* data) {
+SoftI2CStatus Wire::readRegister16BE(uint8_t device_addr, uint8_t reg_addr, uint16_t* data) {
     uint8_t bytes[2];
     SoftI2CStatus status = readBytes(device_addr, reg_addr, bytes, 2);
     if (status == SOFT_I2C_SUCCESS && data) {
@@ -425,14 +426,14 @@ SoftI2CStatus SoftWire::readRegister16BE(uint8_t device_addr, uint8_t reg_addr, 
     return status;
 }
 
-SoftI2CStatus SoftWire::writeRegister16LE(uint8_t device_addr, uint8_t reg_addr, uint16_t data) {
+SoftI2CStatus Wire::writeRegister16LE(uint8_t device_addr, uint8_t reg_addr, uint16_t data) {
     uint8_t bytes[2];
     bytes[0] = data & 0xFF;          // 低字节
     bytes[1] = (data >> 8) & 0xFF;   // 高字节
     return writeBytes(device_addr, reg_addr, bytes, 2);
 }
 
-SoftI2CStatus SoftWire::readRegister16LE(uint8_t device_addr, uint8_t reg_addr, uint16_t* data) {
+SoftI2CStatus Wire::readRegister16LE(uint8_t device_addr, uint8_t reg_addr, uint16_t* data) {
     uint8_t bytes[2];
     SoftI2CStatus status = readBytes(device_addr, reg_addr, bytes, 2);
     if (status == SOFT_I2C_SUCCESS && data) {
@@ -443,12 +444,12 @@ SoftI2CStatus SoftWire::readRegister16LE(uint8_t device_addr, uint8_t reg_addr, 
 
 // ==================== Wire兼容接口 ====================
 
-void SoftWire::beginTransmission(uint8_t address) {
+void Wire::beginTransmission(uint8_t address) {
     _tx_address = address;
     _tx_buffer_length = 0;
 }
 
-size_t SoftWire::write(uint8_t data) {
+size_t Wire::write(uint8_t data) {
     if (_tx_buffer_length >= sizeof(_tx_buffer)) {
         return 0;  // 缓冲区满
     }
@@ -456,7 +457,7 @@ size_t SoftWire::write(uint8_t data) {
     return 1;
 }
 
-uint8_t SoftWire::endTransmission(bool sendStop) {
+uint8_t Wire::endTransmission(bool sendStop) {
     if (!_initialized) {
         return 4;  // 其他错误
     }
@@ -489,7 +490,7 @@ uint8_t SoftWire::endTransmission(bool sendStop) {
     return 0;  // 成功
 }
 
-uint8_t SoftWire::requestFrom(uint8_t address, uint8_t quantity, bool sendStop) {
+uint8_t Wire::requestFrom(uint8_t address, uint8_t quantity, bool sendStop) {
     if (!_initialized || quantity == 0 || quantity > sizeof(_rx_buffer)) {
         return 0;
     }
@@ -518,11 +519,11 @@ uint8_t SoftWire::requestFrom(uint8_t address, uint8_t quantity, bool sendStop) 
     return _rx_buffer_length;
 }
 
-int SoftWire::available(void) {
+int Wire::available(void) {
     return _rx_buffer_length - _rx_buffer_index;
 }
 
-int SoftWire::read(void) {
+int Wire::read(void) {
     if (_rx_buffer_index >= _rx_buffer_length) {
         return -1;
     }
@@ -531,7 +532,7 @@ int SoftWire::read(void) {
 
 // ==================== 工具函数 ====================
 
-const char* SoftWire::getStatusString(SoftI2CStatus status) {
+const char* Wire::getStatusString(SoftI2CStatus status) {
     switch (status) {
         case SOFT_I2C_SUCCESS:        return "Success";
         case SOFT_I2C_NACK_ADDR:      return "NACK on address";
@@ -542,7 +543,7 @@ const char* SoftWire::getStatusString(SoftI2CStatus status) {
     }
 }
 
-uint8_t SoftWire::scanBus(uint8_t* found_devices, uint8_t max_devices) {
+uint8_t Wire::scanBus(uint8_t* found_devices, uint8_t max_devices) {
     if (!_initialized || !found_devices || max_devices == 0) {
         return 0;
     }

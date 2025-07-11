@@ -9,13 +9,15 @@
 #define SOFTWARE_BUILD_TIME __TIME__
 #define HARDWARE_VERSION "v1.0.0"
 
-extern ledState powerLed;
-extern ledState chargerLed;
-extern ledState functionKeyLed;
-extern ledState gnssLed;
-extern ledState dataLed;
+/*Function Key*/
+#define FUNCTION_KEY_PIN PA15
+/*power_control_pin*/
+#define MCU_ON_OFF_BATTERY_PIN PB3
 
-extern uint8_t chargeStatus;
+/*Status LED*/
+#define POWER_LED_PIN PC13
+#define CHARGE_LED_PIN PH2
+#define FUNCTION_LED_PIN PB5
 
 extern present_device present_devices;
 extern online_device online_devices;

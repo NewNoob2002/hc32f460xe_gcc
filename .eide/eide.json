@@ -333,10 +333,10 @@
                 "path": "user/bsp/src/MYSPI.c"
               },
               {
-                "path": "user/bsp/src/bq40z50.cpp"
+                "path": "user/bsp/src/led.cpp"
               },
               {
-                "path": "user/bsp/src/mp2762.cpp"
+                "path": "user/bsp/src/power_control.cpp"
               }
             ],
             "folders": []
@@ -390,7 +390,16 @@
             "name": "Bq40z50",
             "files": [
               {
-                "path": "libraries/Bq40z50/Fuelgauge.cpp"
+                "path": "libraries/Bq40z50/bq40z50.cpp"
+              }
+            ],
+            "folders": []
+          },
+          {
+            "name": "Mp2762a",
+            "files": [
+              {
+                "path": "libraries/Mp2762a/mp2762a.cpp"
               }
             ],
             "folders": []
@@ -454,7 +463,8 @@
             }
           ]
         },
-        "options": "null"
+        "options": "null",
+        "archExtensions": ""
       },
       "uploader": "JLink",
       "uploadConfig": {
@@ -517,13 +527,15 @@
           "user/bsp/inc",
           "Arduino/libraries/Timer0/src",
           "Arduino/libraries/Wire/src",
+          "libraries/Mp2762a",
           "libraries/Bq40z50"
         ],
         "libList": [],
         "defineList": [
           "USE_DEVICE_DRIVER_LIB",
           "HC32F460",
-          "__CORE_DEBUG"
+          "__CORE_DEBUG",
+          "__DEBUG"
         ]
       },
       "builderOptions": {
@@ -563,5 +575,5 @@
       }
     }
   },
-  "version": "3.5"
+  "version": "3.6"
 }

@@ -16,7 +16,8 @@
             "*.cpp": "cpp",
             "*.cxx": "cpp",
             "*.cc": "cpp",
-            "system_error": "c"
+            "system_error": "c",
+            "cmath": "cpp"
         },
         "files.autoGuessEncoding": true,
         "C_Cpp.default.configurationProvider": "cl.eide",

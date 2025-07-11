@@ -2,7 +2,7 @@
 
 // configurable ADC resolution
 #ifndef CORE_ADC_RESOLUTION
-#define CORE_ADC_RESOLUTION 10 // fallback to 10 bit
+#define CORE_ADC_RESOLUTION 12 // default to 12 bit
 #endif
 
 #if CORE_ADC_RESOLUTION == 8

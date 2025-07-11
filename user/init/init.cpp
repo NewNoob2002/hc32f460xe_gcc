@@ -2,6 +2,7 @@
 #include "../drivers/sysclock/sysclock.h"
 #include "../drivers/sysclock/sysclock_util.h"
 #include "../drivers/sysclock/systick.h"
+#include "../drivers/adc/adc.h"
 #include "../core_debug.h"
 #include "../core_hooks.h"
 #include <Arduino.h>
@@ -57,7 +58,9 @@ void core_init()
     // setup systick
     delay_init();
     // setup usart
+    #ifdef __DEBUG
     Serial.begin(115200);
+    #endif
     // setup backtrace
     cm_backtrace_init(SOFTWARE_NAME, HARDWARE_VERSION, SOFTWARE_VERSION " " SOFTWARE_BUILD_DATE " " SOFTWARE_BUILD_TIME);
 

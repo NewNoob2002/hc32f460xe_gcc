@@ -1,6 +1,9 @@
 #ifndef MCU_DEFINE_H
 #define MCU_DEFINE_H
 
+#include <stdint.h>
+#include <stdbool.h>
+
 typedef enum {
   KEY_ACTION_NONE = 0,
   KEY_ACTION_SINGLE_CLICK, // 单击
@@ -57,7 +60,7 @@ enum chargeStatus
 typedef struct _ledState{
     bool isOn;
     uint32_t lastToggleTime;
-    int currentRate;
+    uint32_t currentRate;
 } ledState;
 
 #endif
