@@ -26,16 +26,26 @@ void checkBatteryLevels(BatteryState *batteryState)
 {
     if (online_devices.bq40z50) {
         /* code */
-        batteryState->batteryLevelPercent           = bq40z50getRelativeStateOfCharge();
-        batteryState->batteryVoltage                = (bq40z50getVoltageMv() / 1000.0);
-        batteryState->batteryTempC                  = bq40z50getTemperatureC();
+        float batteryLevelPercent = bq40z50getRelativeStateOfCharge();
+        float batteryVoltage       = (bq40z50getVoltageMv() / 1000.0);
+        float batteryTempC         = bq40z50getTemperatureC();
+
+        if(CM_VALUE_IN_RANGE(batteryLevelPercent, 0, 100)) {
+            batteryState->batteryLevelPercent = batteryLevelPercent;
+        }
+        if(CM_VALUE_IN_RANGE(batteryVoltage, 6.0, 8.4)) {
+            batteryState->batteryVoltage = batteryVoltage;
+        }
+        if(CM_VALUE_IN_RANGE(batteryTempC, -10.0, 50.0)) {
+            batteryState->batteryTempC = batteryTempC;
+        }
         // batteryState->batteryChargingPercentPerHour = (float)bq40z50getAverageCurrentMa() /
         //                                               bq40z50getFullChargeCapacityMah() * 100.0;
     }
     if (batteryState->batteryLevelPercent == 0) {
         batteryState->batteryLevelPercent = 50.0;
     }
-    if (batteryState->batteryLevelPercent > 98.50 && batteryState->batteryVoltage >= 8.31) {
+    if (batteryState->batteryLevelPercent > 98.50 || batteryState->batteryVoltage >= 8.25) {
         batteryState->batteryLevelPercent = 100;
     }
 }

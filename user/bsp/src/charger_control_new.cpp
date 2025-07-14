@@ -1,7 +1,9 @@
-#include "charger_control_new.h"
 #include "mcu_config.h"
 #include "core_debug.h"
+#include "delay.h"
 #include "mp2762a.h"
+
+#include "charger_control_new.h"
 
 bool mp2762a_begin(BatteryState *batteryState)
 {
@@ -21,7 +23,7 @@ bool mp2762a_begin(BatteryState *batteryState)
     // Setting fast charge current to 1600mA
     mp2762setFastChargeCurrentMa(1600);
     // get charge status
-    uint8_t charge_status = mp2762getChargeStatus();
+    uint8_t charge_status      = mp2762getChargeStatus();
     batteryState->chargeStatus = charge_status;
 
     return true;
@@ -29,18 +31,24 @@ bool mp2762a_begin(BatteryState *batteryState)
 
 void mp2762a_update(BatteryState *batteryState)
 {
-    batteryState->chargeStatus = mp2762getChargeStatus();
-
-      // 非充电时电压监控
-  if (!isCharging(batteryState) && batteryState->batteryChargingPercentPerHour == 0.0)
-  {
-    const float packVoltage = mp2762getBatteryVoltageMv() / 1000.0f;
-    if (batteryState->batteryVoltage < 7.0f)
-    {
-      CORE_DEBUG_PRINTF("Pack voltage %0.2fV, resetting safety timer\n",
-                   packVoltage);
-      mp2762resetSafetyTimer();
+    uint8_t charge_status = mp2762getChargeStatus();
+    if (CM_VALUE_IN_RANGE(charge_status, 0, 2)) {
+        batteryState->chargeStatus = charge_status;
     }
-    return;
-  }
+
+    static uint32_t last_charge_status_time = 0;
+    // 非充电时电压监控
+    if(millis() - last_charge_status_time > 60 * 1000)
+    {
+        last_charge_status_time = millis();
+        if (!isCharging(batteryState)) {
+
+            const float packVoltage = mp2762getBatteryVoltageMv() / 1000.0f;
+            if (batteryState->batteryVoltage < 7.0f) {
+                CORE_DEBUG_PRINTF("Pack voltage %0.2fV, resetting safety timer\n",
+                                  packVoltage);
+                mp2762resetSafetyTimer();
+            }
+        }
+    }
 }

@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "CommonMacro.h"
 
 typedef enum {
   KEY_ACTION_NONE = 0,

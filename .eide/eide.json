@@ -343,6 +343,9 @@
               },
               {
                 "path": "user/bsp/src/charger_control_new.cpp"
+              },
+              {
+                "path": "user/bsp/src/slave_i2c.cpp"
               }
             ],
             "folders": []
