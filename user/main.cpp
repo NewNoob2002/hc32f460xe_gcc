@@ -7,6 +7,7 @@
 #include "battery.h"
 #include "led.h"
 #include "power_control.h"
+#include "slave_i2c.h"
 
 static MillisTaskManager taskManager;
 
@@ -28,26 +29,23 @@ int main()
     Power_Control_Init();
     stc_rmu_rstcause_t cause;
     RMU_GetResetCause(&cause);
-    if(cause.enSoftware == Set)
-    {
+    if (cause.enSoftware == Set) {
         MCU_ON_OFF_PIN_HIGH();
         printf("software reset\n");
     }
     wire.begin();
     wire.setClock(100 * 1000);
     bq40z50_begin();
-    if(mp2762a_begin(&batteryState) == false)
-    {
-        //TODO: set a flag to change firmware to V1.3.0
+    if (mp2762a_begin(&batteryState) == false) {
+        // TODO: set a flag to change firmware to V1.3.0
     }
-        // get reset cause
-    while(true)
-    {
-        if(cause.enSoftware == Set)
+    // get reset cause
+    while (true) {
+        if (cause.enSoftware == Set)
             break;
-        else if(get_power_off_trigger_count() > 6)
+        else if (get_power_off_trigger_count() > 6)
             break;
-        
+
         Adc1_polling();
         delay_ms(300);
     }
@@ -57,6 +55,8 @@ int main()
 
     taskManager.Register(loopTask, 100);
     taskManager.Register(Led_Update, 20);
+
+    printf("Setup done, begin task loop ........................\n");
     while (true) {
         taskManager.Running(millis());
     }

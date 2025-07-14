@@ -1,6 +1,9 @@
-#include "led.h"
 #include <Arduino.h>
+#include "battery.h"
+#include "charger_control_new.h"
+#include "mcu_config.h"
 
+#include "led.h"
 ledState powerLed = {false, 0, 0};
 ledState chargerLed = {false, 0, 0};
 ledState functionKeyLed = {false, 0, 0};
@@ -51,6 +54,18 @@ void Led_Update_Charge()
             digitalWrite(CHARGE_LED_PIN, chargerLed.isOn ? HIGH : LOW);
             chargerLed.lastToggleTime = now;
         }
+    }
+
+    if(isCharging(&batteryState))
+    {
+        if(isfastCharging(&batteryState))
+        {
+            chargerLed.currentRate = 300;
+        }else{
+            chargerLed.currentRate = 500;
+        }
+    }else{
+        chargerLed.currentRate = 0;
     }
 }
 

@@ -14,6 +14,7 @@ CompileFlags:
         - -I/Applications/ArmGNUToolchain/14.2.rel1/arm-none-eabi/lib/gcc/arm-none-eabi/14.2.1/include
         - -I/Applications/ArmGNUToolchain/14.2.rel1/arm-none-eabi/lib/gcc/arm-none-eabi/14.2.1/include-fixed
         - -I/Applications/ArmGNUToolchain/14.2.rel1/arm-none-eabi/arm-none-eabi/include
+        - -I/Applications/ArmGNUToolchain/14.2.rel1/arm-none-eabi/arm-none-eabi/include/c++/14.2.1/arm-none-eabi/thumb/v7e-m+fp/hard
     CompilationDatabase: ./build/Debug
     Compiler: /opt/homebrew/bin/arm-none-eabi-g++
     Remove:
