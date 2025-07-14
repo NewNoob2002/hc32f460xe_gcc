@@ -19,11 +19,13 @@ SystemParameter DisplayPannelParameter;
 void loopTask()
 {
     battery_update();
+    Led_Function_switch(LOW);
 }
 
 int main()
 {
     core_init();
+    
     // init
     Led_Init();
     WatchDog_Init();
@@ -58,16 +60,6 @@ int main()
     memset(&DisplayPannelParameter, 0, sizeof(SystemParameter));
     memcpy(DisplayPannelParameter.hw_version, HARDWARE_VERSION, strlen(HARDWARE_VERSION));
     memcpy(DisplayPannelParameter.sw_version, SOFTWARE_VERSION, strlen(SOFTWARE_VERSION));
-
-    /* Initialize I2C peripheral and enable function*/
-    if (Ok != Slave_Initialize()) {
-        delay_ms(1200);
-        Led_Power_switch(LOW);
-        NVIC_SystemReset();
-        Led_Power_switch(HIGH);
-    }
-    rxBufferClear();
-    txBufferClear();
 
     taskManager.Register(loopTask, 100);
     taskManager.Register(Led_Update, 20);

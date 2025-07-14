@@ -1,7 +1,4 @@
 #include <Arduino.h>
-#include <cstddef>
-#include "../gpio/gpio.h"
-#include "../irqn/irqn.h"
 
 #include "slave_i2c.h"
 static RingBuffer<uint8_t> *rxBuffer = nullptr;
