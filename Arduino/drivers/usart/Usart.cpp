@@ -6,7 +6,6 @@
 #include "yield.h"
 #include "../gpio/gpio.h"
 #include "../irqn/irqn.h"
-#include "../sysclock/sysclock.h"
 
 //
 // global instances
@@ -510,7 +509,7 @@ void Usart::begin(uint32_t baud, const stc_usart_uart_init_t *config, const bool
 		
 	
 		// enable TX
-		USART_FuncCmd(this->config->peripheral.register_base, UsartTx, Enable);
+	USART_FuncCmd(this->config->peripheral.register_base, UsartTx, Enable);
     // setup usart interrupts
     usart_irq_register(this->config->interrupts.rx_error, "usart rx error");
 //    usart_irq_register(this->config->interrupts.tx_buffer_empty, "usart tx buffer empty");

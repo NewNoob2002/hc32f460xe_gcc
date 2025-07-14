@@ -1,8 +1,9 @@
 #include <Arduino.h>
 #include "delay.h"
+#include "hc32_common.h"
 #include "init/init.h"
 #include "MillisTaskManager.h"
-#include "mcu_define.h"
+#include "mcu_config.h"
 #include "soft_i2c.h"
 #include "battery.h"
 #include "led.h"
@@ -51,7 +52,22 @@ int main()
     }
     reset_power_off_trigger_count();
     Led_Power_switch(HIGH);
+    Led_Function_switch(HIGH);
     MCU_ON_OFF_PIN_HIGH();
+
+    memset(&DisplayPannelParameter, 0, sizeof(SystemParameter));
+    memcpy(DisplayPannelParameter.hw_version, HARDWARE_VERSION, strlen(HARDWARE_VERSION));
+    memcpy(DisplayPannelParameter.sw_version, SOFTWARE_VERSION, strlen(SOFTWARE_VERSION));
+
+    /* Initialize I2C peripheral and enable function*/
+    if (Ok != Slave_Initialize()) {
+        delay_ms(1200);
+        Led_Power_switch(LOW);
+        NVIC_SystemReset();
+        Led_Power_switch(HIGH);
+    }
+    rxBufferClear();
+    txBufferClear();
 
     taskManager.Register(loopTask, 100);
     taskManager.Register(Led_Update, 20);
