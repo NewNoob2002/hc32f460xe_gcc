@@ -2,6 +2,24 @@
 #define __LCD_H
 /* Includes ------------------------------------------------------------------*/
 #include <stdint.h>
+
+/* LCD color */
+#define Black 0x0000   /* 黑色：    0,   0,   0 */
+#define BLUE 0x001F    /* 蓝色：    0,   0, 255 */
+#define GREEN 0x07E0   /* 绿色：    0, 255,   0 */
+#define CYAN 0x07FF    /* 青色：    0, 255, 255 */
+#define RED 0xF800     /* 红色：  255,   0,   0 */
+#define MAGENTA 0xF81F /* 品红：  255,   0, 255 */
+#define YELLOW 0xFFE0  /* 黄色：  255, 255, 0   */
+#define White 0xFFFF   /* 白色：  255, 255, 255 */
+#define NAVY 0x000F    /* 深蓝色：  0,   0, 128 */
+#define DGREEN 0x03E0  /* 深绿色：  0, 128,   0 */
+#define DCYAN 0x03EF   /* 深青色：  0, 128, 128 */
+#define MAROON 0x7800  /* 深红色：128,   0,   0 */
+#define PURPLE 0x780F  /* 紫色：  128,   0, 128 */
+#define OLIVE 0x7BE0   /* 橄榄绿：128, 128,   0 */
+#define LGRAY 0xC618   /* 灰白色：192, 192, 192 */
+#define DGRAY 0x7BEF   /* 深灰色：128, 128, 128 */
 /* Exported types ------------------------------------------------------------*/
 typedef unsigned long u32;
 typedef unsigned short u16;
@@ -41,24 +59,6 @@ extern "C"
     uint16_t LCD_DrawPoint(u32 point);
     void LCD_Fill(uint16_t x_start, uint16_t y_start, uint16_t x_end, uint16_t y_end, uint16_t color);
     void LCD_Clear(uint16_t color);
-
-/* LCD color */
-#define Black 0x0000   /* 黑色：    0,   0,   0 */
-#define BLUE 0x001F    /* 蓝色：    0,   0, 255 */
-#define GREEN 0x07E0   /* 绿色：    0, 255,   0 */
-#define CYAN 0x07FF    /* 青色：    0, 255, 255 */
-#define RED 0xF800     /* 红色：  255,   0,   0 */
-#define MAGENTA 0xF81F /* 品红：  255,   0, 255 */
-#define YELLOW 0xFFE0  /* 黄色：  255, 255, 0   */
-#define White 0xFFFF   /* 白色：  255, 255, 255 */
-#define NAVY 0x000F    /* 深蓝色：  0,   0, 128 */
-#define DGREEN 0x03E0  /* 深绿色：  0, 128,   0 */
-#define DCYAN 0x03EF   /* 深青色：  0, 128, 128 */
-#define MAROON 0x7800  /* 深红色：128,   0,   0 */
-#define PURPLE 0x780F  /* 紫色：  128,   0, 128 */
-#define OLIVE 0x7BE0   /* 橄榄绿：128, 128,   0 */
-#define LGRAY 0xC618   /* 灰白色：192, 192, 192 */
-#define DGRAY 0x7BEF   /* 深灰色：128, 128, 128 */
 
 #ifdef __cplusplus
 }

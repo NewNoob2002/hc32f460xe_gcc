@@ -709,6 +709,7 @@ prv_assignmem(lwmem_t* lwobj, const lwmem_region_t* regions) {
     lwmem_block_t *first_block = NULL, *prev_end_block = NULL;
 
     for (size_t idx = 0; regions->size > 0 && regions->start_addr != NULL; ++idx, ++regions) {
+        (void)idx;
         /* Get region start address and size, stop on failure */
         if (!prv_get_region_addr_size(regions, &mem_start_addr, &mem_size)) {
             continue;

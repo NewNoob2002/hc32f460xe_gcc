@@ -1,7 +1,7 @@
 #include "LCD.h"
+#include <hc32_ddl.h>
+
 #include "MYSPI.h"
-
-
 void Spi_Config(void)
 {
     stc_spi_init_t stcSpiInit;

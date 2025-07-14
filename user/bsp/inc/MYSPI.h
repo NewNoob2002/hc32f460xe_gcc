@@ -1,7 +1,7 @@
 #ifndef __MYSPI_H__
 #define __MYSPI_H__
 
-#include "hc32_ddl.h"
+#include <stdint.h>
 
 /* SPI_SCK Port/Pin definition */ // SCL
 /* SCK = PA8 */
