@@ -15,17 +15,17 @@
 
 /* Define port and pin for SDA and SCL */
 
-// #define SLAVE_I2C_SCL_PORT                    (GPIO_PORT_A)
-#define SLAVE_I2C_SCL_PIN (PA3)
-// #define SLAVE_I2C_SDA_PORT                    (GPIO_PORT_A)
-#define SLAVE_I2C_SDA_PIN       (PA2)
-#define SLAVE_I2C_GPIO_SCL_FUNC (Func_I2c1_Scl)
-#define SLAVE_I2C_GPIO_SDA_FUNC (Func_I2c1_Sda)
+#define SLAVE_I2C_SCL_PORT                    (GPIO_PORT_A)
+#define SLAVE_I2C_SCL_PIN                     (Pin03)
+#define SLAVE_I2C_SDA_PORT                    (GPIO_PORT_A)
+#define SLAVE_I2C_SDA_PIN                     (Pin02)
+#define SLAVE_I2C_GPIO_SCL_FUNC               (Func_I2c1_Scl)
+#define SLAVE_I2C_GPIO_SDA_FUNC               (Func_I2c1_Sda)
 
-// #define SLAVE_I2C_EEI_IRQN_DEF                (INT001_IRQn)
-// #define SLAVE_I2C_RXI_IRQN_DEF                (INT002_IRQn)
-// #define SLAVE_I2C_TXI_IRQN_DEF                (INT003_IRQn)
-// #define SLAVE_I2C_TEI_IRQN_DEF                (INT004_IRQn)
+#define SLAVE_I2C_EEI_IRQN_DEF                (Int003_IRQn)
+#define SLAVE_I2C_RXI_IRQN_DEF                (Int004_IRQn)
+#define SLAVE_I2C_TXI_IRQN_DEF                (Int005_IRQn)
+#define SLAVE_I2C_TEI_IRQN_DEF                (Int006_IRQn)
 
 #define SLAVE_I2C_INT_EEI_DEF (INT_I2C1_EEI)
 #define SLAVE_I2C_INT_RXI_DEF (INT_I2C1_RXI)
@@ -56,6 +56,7 @@ typedef enum {
     SLAVE_I2C_COM_IDLE = 1U,
 } stc_i2c_com_status_t;
 
+
 /**
  * @brief I2c communication structure
  */
@@ -72,8 +73,13 @@ typedef struct {
     volatile stc_i2c_com_status_t enComStatus; /*!< I2C communication status*/
 } stc_i2c_communication_t;
 
+extern uint8_t u8SlaveI2CRxBuf[SLAVE_I2C_RXBUF_LEN];
+extern uint8_t u8SlaveI2CTxBuf[SLAVE_I2C_TXBUF_LEN];
 extern stc_i2c_communication_t stcI2cCom;
+extern uint8_t Slave_I2C_Mode;
+extern uint32_t Slave_I2C_TX_Len;
 
+extern uint8_t Slave_i2c_start_flag;
 #ifdef __cplusplus
 extern "C" {
 #endif

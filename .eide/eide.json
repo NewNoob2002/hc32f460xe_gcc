@@ -346,6 +346,9 @@
               },
               {
                 "path": "user/bsp/src/slave_i2c.cpp"
+              },
+              {
+                "path": "user/bsp/src/nm_message.cpp"
               }
             ],
             "folders": []

@@ -47,7 +47,7 @@ void core_init()
     // check if last reset could be reoccuring
     check_reoccuring_reset_fault();
     // setup system clock
-    clock_init();
+    // clock_init();
     update_system_clock_frequencies();
     // setup systick
     delay_init();

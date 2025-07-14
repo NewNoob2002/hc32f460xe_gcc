@@ -3,6 +3,7 @@
 
 #include "hc32_ddl.h"
 
+extern volatile uint16_t slaveI2c_errorTick;
 #ifdef __cplusplus
 extern "C" {
 #endif

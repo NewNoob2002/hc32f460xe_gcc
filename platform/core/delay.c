@@ -13,6 +13,7 @@
 #define SYSTICK_TICK_MS (SYSTICK_TICK_STEP * systick_ticks)
 
 static volatile uint32_t systick_ticks = 0;
+volatile uint16_t slaveI2c_errorTick = 0;
 /*
  * @brief SysTick Init
  * @param none
@@ -29,7 +30,7 @@ void delay_init() {
  */
 void SysTick_Handler() {
 	systick_ticks += SYSTICK_TICK_STEP;
-//	lv_tick_inc(1);
+	slaveI2c_errorTick ++;
 }
 
 uint32_t millis()
