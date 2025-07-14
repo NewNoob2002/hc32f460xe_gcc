@@ -82,6 +82,9 @@ MEMORY
 
 ENTRY(Reset_Handler)
 
+/* Export linker parameters as symbols for C code */
+PROVIDE(__ld_flash_start = LD_FLASH_START);
+
 SECTIONS
 {
     /* vector table: 0x000 - 0x27F + padding  */

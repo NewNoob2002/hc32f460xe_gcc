@@ -557,7 +557,7 @@
               "disable": false,
               "abortAfterFailed": false,
               "stopBuildAfterFailed": true,
-              "command": "arm-none-eabi-gcc -C -P -x c -E \"platform/startup/linker/hc32f46x_param.ld\" -o \"platform\\startup\\linker\\hc32f46x_final.ld\" -DLD_FLASH_START=0x00008000 -DLD_FLASH_SIZE=0x80000 -DLD_BOOT_MODE=2 -DDDL_STACK_SIZE=0x00001000"
+              "command": "arm-none-eabi-gcc -C -P -x c -E \"platform/startup/linker/hc32f46x_param.ld\" -o \"platform/startup/linker/hc32f46x_final.ld\" -DLD_FLASH_START=0x00008000 -DLD_FLASH_SIZE=0x80000 -DLD_BOOT_MODE=2 -DDDL_STACK_SIZE=0x00001000"
             }
           ],
           "afterBuildTasks": [],

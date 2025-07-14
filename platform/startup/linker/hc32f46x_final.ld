@@ -48,6 +48,8 @@ MEMORY
     RET_RAM (rwx): ORIGIN = 0x200F0000, LENGTH = 4K
 }
 ENTRY(Reset_Handler)
+/* Export linker parameters as symbols for C code */
+PROVIDE(__ld_flash_start = 0x00008000);
 SECTIONS
 {
     /* vector table: 0x000 - 0x27F + padding  */

@@ -2,11 +2,6 @@
 #define SLAVE_I2C_H
 
 #include <stdint.h>
-
-#ifdef __cplusplus
-#include "RingBuffer.h"
-#endif
-
 /*******************************************************************************
  * Local pre-processor symbols/macros ('#define')
  ******************************************************************************/
@@ -83,19 +78,11 @@ extern stc_i2c_communication_t stcI2cCom;
 extern "C" {
 #endif
 
-int32_t I2C_Slave_Receive_IT();
-int32_t I2C_Slave_Transmit_IT();
-bool WriteByte(uint8_t u8Data);
-size_t WriteBytes(uint8_t *buffer, size_t size);
-int ReadByte();
-size_t ReadBytes(uint8_t *buffer, size_t size);
-
+int32_t I2C_Slave_Receive_IT(uint8_t *pu8RxData, uint32_t u32Size);
+int32_t I2C_Slave_Transmit_IT(uint8_t *pu8TxData, uint32_t u32Size);
+void BufWrite(uint8_t u8Data);
+uint8_t BufRead(void);
 int32_t Slave_Initialize(void);
-
-bool isRxBufferEmpty();
-bool isTxBufferEmpty();
-void rxBufferClear();
-void txBufferClear();
 
 #ifdef __cplusplus
 }
