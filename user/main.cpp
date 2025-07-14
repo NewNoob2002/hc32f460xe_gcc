@@ -34,7 +34,7 @@ int main()
         printf("software reset\n");
     }
     wire.begin();
-    wire.setClock(100000);
+    wire.setClock(100 * 1000);
     bq40z50_begin();
     if(mp2762a_begin(&batteryState) == false)
     {

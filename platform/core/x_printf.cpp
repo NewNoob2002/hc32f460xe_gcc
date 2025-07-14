@@ -1,7 +1,6 @@
 #include "x_printf.h"
 #include <Arduino.h>
 #include <stdio.h>
-#include <inttypes.h> // for PRIu32, etc.
 #include <stdarg.h>   // for va_list, va_start, va_end
 
 extern "C" {

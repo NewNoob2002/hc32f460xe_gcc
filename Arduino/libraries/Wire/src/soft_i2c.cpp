@@ -223,7 +223,7 @@ bool Wire::begin(void) {
     }
     
     _initialized = true;
-    CORE_DEBUG_PRINTF("SoftWire: Register-optimized init complete, SDA=%d, SCL=%d, delay=%uus\n", 
+    CORE_DEBUG_PRINTF("SoftWire: Register-optimized init complete, SDA=%d, SCL=%d, delay=%luus\n", 
                      _sda_pin, _scl_pin, _delay_us);
     return true;
 }
@@ -262,7 +262,7 @@ void Wire::setClock(uint32_t frequency) {
         _delay_us = half_period_us;
     }
     
-    CORE_DEBUG_PRINTF("SoftWire: Clock set to %uHz, optimized delay=%uus\n", frequency, _delay_us);
+    CORE_DEBUG_PRINTF("SoftWire: Clock set to %uHz, optimized delay=%luus\n", frequency, _delay_us);
 }
 
 bool Wire::isDeviceOnline(uint8_t address, uint8_t retries) {

@@ -7,15 +7,30 @@
 
 BatteryState batteryState;
 
+const char* getBatteryChargeStatus(uint8_t &chargeStatus)
+{
+    switch (chargeStatus)
+    {
+        case 0:
+            return "Not Charging";
+        case 1:
+            return "Normal Charging";
+        case 2:
+            return "Fast Charging";
+        default:
+            return "Unknown";
+    }
+}
+
 void checkBatteryLevels(BatteryState *batteryState)
 {
     if (online_devices.bq40z50) {
         /* code */
-        batteryState->batteryLevelPercent           = bq40z50getRelativeStateOfCharge(true);
+        batteryState->batteryLevelPercent           = bq40z50getRelativeStateOfCharge();
         batteryState->batteryVoltage                = (bq40z50getVoltageMv() / 1000.0);
         batteryState->batteryTempC                  = bq40z50getTemperatureC();
-        batteryState->batteryChargingPercentPerHour = (float)bq40z50getAverageCurrentMa() /
-                                                      bq40z50getFullChargeCapacityMah() * 100.0;
+        // batteryState->batteryChargingPercentPerHour = (float)bq40z50getAverageCurrentMa() /
+        //                                               bq40z50getFullChargeCapacityMah() * 100.0;
     }
     if (batteryState->batteryLevelPercent == 0) {
         batteryState->batteryLevelPercent = 50.0;
@@ -64,10 +79,9 @@ void battery_update()
 #ifdef __DEBUG
         char buffer[128];
         snprintf(buffer, sizeof(buffer),
-                 "Batt(%0.02f%%): %0.02fV %s %0.02f%%/hr Type:%d Temp:%0.02fC\n",
+                 "Batt(%0.02f%%): %0.02fV Type:%s Temp:%0.02f C\n",
                  batteryState.batteryLevelPercent, batteryState.batteryVoltage,
-                 isCharging(&batteryState) ? "Chg" : "DisChg", batteryState.batteryChargingPercentPerHour,
-                 batteryState.chargeStatus, batteryState.batteryTempC);
+                 getBatteryChargeStatus(batteryState.chargeStatus), batteryState.batteryTempC);
         CORE_DEBUG_PRINTF("%s", buffer);
 #endif
     }
