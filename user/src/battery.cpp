@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include "mcu_config.h"
-#include "bq40z50.h"
+#include "bq40z50/bq40z50.h"
 #include "core_debug.h"
 
 #include "battery.h"
@@ -52,14 +52,12 @@ void checkBatteryLevels(BatteryState *batteryState)
 
 bool bq40z50_begin()
 {
-    if (bq40z50Begin(wire)) {
-        online_devices.bq40z50 = true;
-        CORE_DEBUG_PRINTF("bq40z50 found\n");
-    } else {
-        CORE_DEBUG_PRINTF("bq40z50 not found\n");
-        online_devices.bq40z50 = false;
-        return false;
-    }
+    // if (bq40z50Begin(wire)) {
+    //     online_devices.bq40z50 = true;
+    // } else {
+    //     online_devices.bq40z50 = false;
+    //     return false;
+    // }
     checkBatteryLevels(&batteryState);
     return true;
 }

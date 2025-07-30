@@ -1,7 +1,16 @@
 #include <Arduino.h>
-#include "delay.h"
+#include "init.h"
 
-int main()
+[[noreturn]] int main()
 {
     core_init();
+    pinMode(PC13, OUTPUT);
+    while (true)
+    {
+        digitalWrite(PC13, HIGH);
+        delay_ms(1000);
+        digitalWrite(PC13, LOW);
+        delay_ms(1000);
+    }
+    
 }

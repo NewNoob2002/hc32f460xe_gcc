@@ -4,7 +4,7 @@
 
 #define PANIC_ENABLE 1
 #define HANG_ON_PANIC 1
-#define PANIC_USART1_TX_PIN PA11
+#define PANIC_USART1_TX_PIN PA12
 // determine if at least one panic output is defined
 #define PANIC_OUTPUT_AVAILABLE                                                                                         \
   (defined(PANIC_USART1_TX_PIN) || defined(PANIC_USART2_TX_PIN) || defined(PANIC_USART3_TX_PIN) ||                     \

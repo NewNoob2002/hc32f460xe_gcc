@@ -1,10 +1,7 @@
 #pragma once
-#include "hc32_common.h"
 #include "ddl_config.h"
 #if (DDL_GPIO_ENABLE == DDL_ON)
-
 #include "hc32f460_gpio.h"
-
 #ifdef __cplusplus
 extern "C"
 {

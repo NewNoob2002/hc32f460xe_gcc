@@ -5,7 +5,7 @@
 #include "wiring_constants.h"
 #include "core_debug.h"
 
-void pinMode(gpio_pin_t dwPin, uint32_t dwMode)
+void pinMode(const gpio_pin_t dwPin, const uint32_t dwMode)
 {
     ASSERT_GPIO_PIN_VALID(dwPin, "pinMode");
     if (dwPin >= BOARD_NR_GPIO_PINS)
@@ -14,15 +14,15 @@ void pinMode(gpio_pin_t dwPin, uint32_t dwMode)
     }
 
     // if pin has ADC channel, configure ADC according to pin mode
-    pin_adc_info_t adc_info = PIN_MAP[dwPin].adc_info;
+    const pin_adc_info_t adc_info = PIN_MAP[dwPin].adc_info;
     adc_device_t *adc_device = adc_info.get_device();
-    uint8_t adc_channel = adc_info.channel;
-    if (adc_device != NULL && adc_channel != ADC_PIN_INVALID)
+    const uint8_t adc_channel = adc_info.channel;
+    if (adc_device != nullptr && adc_channel != ADC_PIN_INVALID)
     {
         // is a valid ADC pin
         if (dwMode == INPUT_ANALOG)
         {
-            // initialize adc device (if already initialized, this will do nothing)
+            // initialize an adc device (if already initialized, this will do nothing)
             adc_device_init(adc_device);
 
             // enable ADC channel

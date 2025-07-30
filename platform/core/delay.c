@@ -12,15 +12,14 @@
 
 #define SYSTICK_TICK_MS (SYSTICK_TICK_STEP * systick_ticks)
 
-static volatile uint32_t systick_ticks = 0;
+static volatile uint64_t systick_ticks = 0;
 /*
  * @brief SysTick Init
  * @param none
  * @return none
  */
-void delay_init() {
-	SysTick_Config(SYSTICK_TICK_LOAD);
-	NVIC_SetPriority(SysTick_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
+void delay_init(void) {
+	SysTick_Init(SYSTICK_TICK_FREQ);
 }
 /*
  * @brief SysTick Handler
@@ -32,12 +31,12 @@ void SysTick_Handler() {
 //	lv_tick_inc(1);
 }
 
-uint32_t millis()
+uint64_t millis()
 {
 	return SYSTICK_TICK_MS;
 }
 
-uint32_t micros(void)
+uint64_t micros()
 {
 	return (SYSTICK_TICK_MS * 1000 + (SYSTICK_TICK_LOAD - SysTick->VAL) / CYCLES_PER_MICROSECOND);
 }

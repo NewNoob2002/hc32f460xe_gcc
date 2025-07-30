@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <hc32_ddl.h>
-#include <addon_gpio.h>
+#include <drivers/gpio/addon_gpio.h>
 #include "drivers/adc/adc.h"
 
 // Include board variant

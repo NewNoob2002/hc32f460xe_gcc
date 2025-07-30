@@ -39,8 +39,8 @@
 uint32_t HRC_VALUE = HRC_16MHz_VALUE;
 uint32_t SystemCoreClock = MRC_VALUE;
 #ifndef VECT_TAB_OFFSET
-///#define VECT_TAB_OFFSET                 (0x0UL)     /*!< This value must be a multiple of 0x400. */
-#define VECT_TAB_OFFSET                 (0x8000UL)     /*!< This value must be a multiple of 0x400. */
+#define VECT_TAB_OFFSET                 (0x0UL)     /*!< This value must be a multiple of 0x400. */
+//#define VECT_TAB_OFFSET                 (0x8000UL)     /*!< This value must be a multiple of 0x400. */
 #endif
 /**
  ******************************************************************************

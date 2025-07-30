@@ -15,8 +15,8 @@
  **   - 2018-10-18  CDT  First version for Hc32 Series of common part.
  **
  ******************************************************************************/
-#ifndef __HC32_COMMON_H__
-#define __HC32_COMMON_H__
+#ifndef HC32_COMMON_H_
+#define HC32_COMMON_H_
 
 /*******************************************************************************
  * Include files

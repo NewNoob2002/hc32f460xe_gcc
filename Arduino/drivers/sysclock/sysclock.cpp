@@ -80,4 +80,6 @@ void clock_init()
     PWC_HS2HP();
     /* Switch system clock source to MPLL. */
     CLK_SetSysClkSource(CLKSysSrcMPLL);
+
+    update_system_clock_frequencies();
 }

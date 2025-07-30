@@ -1,5 +1,5 @@
 #include "usart_sync.h"
-#include <addon_usart.h>
+#include "addon_usart.h"
 
 // USART_TypeDef to gpio function select mapping
 #define USART_DEV_TO_TX_FUNC(usart)       \

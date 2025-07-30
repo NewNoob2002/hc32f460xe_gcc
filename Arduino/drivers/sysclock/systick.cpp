@@ -4,17 +4,6 @@
 ///**
 // * @brief system uptime counter, incremented by systick interrupt every 1ms
 // */
-//volatile uint32_t ticks_ms = 0;
-
-//extern "C" void SysTick_Handler(void)
-//{
-//  __sync_fetch_and_add(&ticks_ms, 1);
-//}
-
-void systick_init()
-{
-  SysTick_Init(1000);
-}
 
 uint32_t systick_millis()
 {

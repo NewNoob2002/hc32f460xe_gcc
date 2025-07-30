@@ -1,21 +1,19 @@
 #include "bq40z50.h"
 
-Wire *bq40z50I2c = nullptr;
+// Wire *bq40z50I2c = nullptr;
 
-bool bq40z50Begin(Wire &i2cBus)
-{
-    if(i2cBus.isDeviceOnline(BQ40Z50_DEVICE_ADDRESS) == false)
-        return false;
-    bq40z50I2c = &i2cBus;
-    return true;
-}
+// bool bq40z50Begin(Wire &i2cBus)
+// {
+//     if(i2cBus.isDeviceOnline(BQ40Z50_DEVICE_ADDRESS) == false)
+//         return false;
+//     bq40z50I2c = &i2cBus;
+//     return true;
+// }
 
 uint8_t bq40z50ReadRegister8(uint8_t reg)
 {
     uint8_t data = 0;
 
-    if(bq40z50I2c->readRegister8(BQ40Z50_DEVICE_ADDRESS, reg, &data) != SOFT_I2C_SUCCESS)
-        return 0;
     return data;
 }
 
@@ -23,8 +21,6 @@ uint16_t bq40z50ReadRegister16(uint8_t reg)
 {
     uint16_t value = 0;
 
-    if(bq40z50I2c->readRegister16LE(BQ40Z50_DEVICE_ADDRESS, reg, &value) != SOFT_I2C_SUCCESS) 
-        return 0;
     return value;
 }
 

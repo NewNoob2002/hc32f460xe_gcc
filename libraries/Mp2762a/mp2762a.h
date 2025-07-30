@@ -1,6 +1,5 @@
 #ifndef __MP2762A_H__
 #define __MP2762A_H__
-#include "soft_i2c.h"
 #include "mcu_config.h"
 
 #ifdef __cplusplus
@@ -26,7 +25,7 @@ extern "C" {
 #define MP2762A_INPUT_CURRENT_H 0x1F
 #define MP2762A_PRECHARGE_THRESHOLD_OPTION 0x30
 
-bool mp2762aBegin(Wire &i2cBus);
+// bool mp2762aBegin(Wire &i2cBus);
 
 uint8_t mp2762aReadRegister8(uint8_t reg);
 

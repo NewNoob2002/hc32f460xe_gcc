@@ -1,6 +1,6 @@
 #pragma once
 #include <hc32_ddl.h>
-#include <addon_gpio.h>
+#include <drivers/gpio/addon_gpio.h>
 #include "core_debug.h"
 #include "../adc/adc.h"
 #include "../../WVariant.h"

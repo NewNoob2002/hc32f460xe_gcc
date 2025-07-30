@@ -1,34 +1,30 @@
 #include "mp2762a.h"
 
-Wire *mp2762aI2c = nullptr;
+// Wire *mp2762aI2c = nullptr;
 
-bool mp2762aBegin(Wire &i2cBus)
-{
-    if(i2cBus.isDeviceOnline(MP2762A_DEVICE_ADDRESS) == false)
-        return false;
-    mp2762aI2c = &i2cBus;
-    return true;
-}
+// bool mp2762aBegin(Wire &i2cBus)
+// {
+//     if(i2cBus.isDeviceOnline(MP2762A_DEVICE_ADDRESS) == false)
+//         return false;
+//     mp2762aI2c = &i2cBus;
+//     return true;
+// }
 
 uint8_t mp2762aReadRegister8(uint8_t reg)
 {
     uint8_t data = 0;
-    if(mp2762aI2c->readRegister8(MP2762A_DEVICE_ADDRESS, reg, &data) != SOFT_I2C_SUCCESS)
-        return 0;
     return data;
 }
 
 uint16_t mp2762aReadRegister16(uint8_t reg)
 {
     uint16_t value = 0;
-    if(mp2762aI2c->readRegister16LE(MP2762A_DEVICE_ADDRESS, reg, &value) != SOFT_I2C_SUCCESS)
-        return 0;
     return value;
 }
 
 uint8_t mp2762aWriteRegister8(uint8_t reg, uint8_t data)
 {
-    uint8_t ret = mp2762aI2c->writeRegister8(MP2762A_DEVICE_ADDRESS, reg, data);
+    uint8_t ret = 0;
     return ret;
 }
 

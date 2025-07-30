@@ -6,7 +6,7 @@ Parse messages from GNSS radios
 License: MIT. Please see LICENSE.md for more details
 ------------------------------------------------------------------------------*/
 
-#include <stdarg.h>
+#include <cstdarg>
 #include "lwmem/lwmem.h"
 #include "SparkFun_Extensible_Message_Parser.h"
 

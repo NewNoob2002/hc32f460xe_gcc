@@ -1,5 +1,5 @@
 #include <hc32_ddl.h>
-#include <addon_usart.h>
+#include "addon_usart.h"
 #include "Usart.h"
 #include "core_hooks.h"
 #include "core_debug.h"
@@ -508,7 +508,7 @@ void Usart::begin(uint32_t baud, const stc_usart_uart_init_t *config, const bool
     USART_FuncCmd(this->config->peripheral.register_base, UsartNoiseFilter, rxNoiseFilter ? Enable : Disable);
 		
 	
-		// enable TX
+	// enable TX
 	USART_FuncCmd(this->config->peripheral.register_base, UsartTx, Enable);
     // setup usart interrupts
     usart_irq_register(this->config->interrupts.rx_error, "usart rx error");
@@ -632,10 +632,10 @@ void Usart::flush(void)
 size_t Usart::write(uint8_t ch)
 {
     // if uninitialized, ignore write
-//    if (!this->initialized)
-//    {
-//        return 1;
-//    }
+    if (!this->initialized)
+    {
+        return 0;
+    }
 
 //    // wait until tx buffer is no longer full
 //    while (this->txBuffer->isFull())
@@ -651,7 +651,7 @@ size_t Usart::write(uint8_t ch)
 
 //    // enable tx + empty interrupt
 //    USART_FuncCmd(this->config->peripheral.register_base, UsartTxAndTxEmptyInt, Enable);
-		while (Reset == USART_GetStatus(this->config->peripheral.register_base, UsartTxEmpty)) /* Warit Tx data register empty */
+    while (Reset == USART_GetStatus(this->config->peripheral.register_base, UsartTxEmpty)) /* Warit Tx data register empty */
     {
     }
     USART_SendData(this->config->peripheral.register_base, ch);
