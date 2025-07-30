@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "addon_gpio.h": "c",
+        "hc32f460_utility.h": "c",
+        "hc32_common.h": "c",
+        "core_types.h": "c",
+        "hc32f460_gpio.h": "c",
+        "ddl_config.h": "c"
+    }
+}
