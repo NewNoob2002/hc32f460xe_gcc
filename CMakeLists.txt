@@ -17,7 +17,7 @@ set(CMAKE_C_EXTENSIONS ON)
 
 # Define the build type
 if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Debug")
+        set(CMAKE_BUILD_TYPE "Debug")
 endif()
 
 # Set the project name
@@ -54,8 +54,6 @@ include_directories(
 )
 
 file(GLOB_RECURSE SOURCE_FILE
-        ${CMAKE_CURRENT_LIST_DIR}/user/*.c
-        ${CMAKE_CURRENT_LIST_DIR}/user/*.cpp
         ${CMAKE_CURRENT_LIST_DIR}/Arduino/*.cpp
         ${CMAKE_CURRENT_LIST_DIR}/Arduino/*.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/core/*.c
@@ -68,6 +66,16 @@ file(GLOB_RECURSE SOURCE_FILE
         ${CMAKE_CURRENT_LIST_DIR}/libraries/*.cpp
 )
 
+set(Application_Files
+        ${CMAKE_CURRENT_LIST_DIR}/user/main.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/user/init.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/user/src/battery.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/user/src/charger_control_new.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/user/src/LCD.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/user/src/led.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/user/src/MYSPI.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/user/src/power_control.cpp
+)
 # STM32 HAL/LL Drivers
 set(LL_Drivers_Src
         ${CMAKE_CURRENT_LIST_DIR}/platform/LL_drivers/src/hc32f460_adc.c
@@ -90,7 +98,7 @@ set(LL_Drivers_Src
         ${CMAKE_CURRENT_LIST_DIR}/platform/LL_drivers/src/hc32f460_dmac.c
 )
 
-SET(STARTUP_FILE ${CMAKE_CURRENT_LIST_DIR}/platform/startup/startup_hc32f460.S)
+set(STARTUP_FILE ${CMAKE_CURRENT_LIST_DIR}/platform/startup/startup_hc32f460.S)
 
 set(Defines_Syms
         USE_DEVICE_DRIVER_LIB
@@ -100,7 +108,7 @@ set(Defines_Syms
 
 set(BOOT_MODE 1)
 set(FLASH_START 0x00000000)
-set(FLASH_END   0x80000)
+set(FLASH_END 0x80000)
 math(EXPR FLASH_SIZE "${FLASH_END} - ${FLASH_START}")
 set(STACK_SIZE 0x00001000)
 message("FLASH_SIZE: " ${FLASH_SIZE})
@@ -109,20 +117,20 @@ add_custom_command(
         OUTPUT ${CMAKE_CURRENT_LIST_DIR}/platform/startup/linker/hc32f46x_final.ld
         COMMAND arm-none-eabi-gcc -C -P -x c -E
         ${CMAKE_CURRENT_LIST_DIR}/platform/startup/linker/hc32f46x_param2.ld
-            -o ${CMAKE_CURRENT_LIST_DIR}/platform/startup/linker/hc32f46x_final.ld
-            -DLD_FLASH_START=${FLASH_START}
-            -DLD_FLASH_SIZE=${FLASH_SIZE}
-            -DLD_BOOT_MODE=${BOOT_MODE}
-            -DDDL_STACK_SIZE=${STACK_SIZE}
+        -o ${CMAKE_CURRENT_LIST_DIR}/platform/startup/linker/hc32f46x_final.ld
+        -DLD_FLASH_START=${FLASH_START}
+        -DLD_FLASH_SIZE=${FLASH_SIZE}
+        -DLD_BOOT_MODE=${BOOT_MODE}
+        -DDDL_STACK_SIZE=${STACK_SIZE}
         DEPENDS ${CMAKE_CURRENT_LIST_DIR}/platform/startup/linker/hc32f46x_param2.ld
         COMMENT "===Preprocess linker script, generate hc32f46x_final.ld ==="
 )
-    
+
 add_custom_target(
         gen_linker_script
         DEPENDS ${CMAKE_CURRENT_LIST_DIR}/platform/startup/linker/hc32f46x_final.ld)
 
-add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILE} ${LL_Drivers_Src} ${STARTUP_FILE})
+add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILE} ${Application_Files} ${LL_Drivers_Src} ${STARTUP_FILE})
 
 add_dependencies(${CMAKE_PROJECT_NAME} gen_linker_script)
 
@@ -135,7 +143,7 @@ set(HEX_FILE ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_PROJECT_NAME}.hex)
 set(BIN_FILE ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_PROJECT_NAME}.bin)
 
 add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-       COMMAND ${CMAKE_OBJCOPY} -O ihex "${EXECUTABLE_OUTPUT_PATH}/${CMAKE_PROJECT_NAME}.elf" "${HEX_FILE}"
-       COMMAND ${CMAKE_OBJCOPY} -O binary "${EXECUTABLE_OUTPUT_PATH}/${CMAKE_PROJECT_NAME}.elf" "${BIN_FILE}"
-       COMMENT "Generating HEX and BIN files"
+        COMMAND ${CMAKE_OBJCOPY} -O ihex "${EXECUTABLE_OUTPUT_PATH}/${CMAKE_PROJECT_NAME}.elf" "${HEX_FILE}"
+        COMMAND ${CMAKE_OBJCOPY} -O binary "${EXECUTABLE_OUTPUT_PATH}/${CMAKE_PROJECT_NAME}.elf" "${BIN_FILE}"
+        COMMENT "Generating HEX and BIN files"
 )
