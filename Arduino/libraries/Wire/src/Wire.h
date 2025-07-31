@@ -1,278 +1,80 @@
-#ifndef TWO_WIRE_H_
-#define TWO_WIRE_H_
+#pragma once
 
-#if DDL_I2C_ENABLE != DDL_ON
-  #error "Wire library requires I2C to be enabled"
+#include <hc32_ddl.h>
+#include <core_types.h>
+
+#define WIRE_TIMEOUT 0x40000UL
+
+#ifndef WIRE_RX_BUFF_SIZE
+#define WIRE_RX_BUFF_SIZE 1024
 #endif
 
-#include "Arduino.h"
-#include "core_debug.h"
-#include "hc32_ddl.h"
+/* I2C address mode */
+#define I2C_ADDR_MD_7BIT                (1U)
+#define I2C_ADDR_MD_10BIT               (0U)
 
-#define TWO_WIRE_DEBUG
+#define I2C_ADDR_MD                     (I2C_ADDR_MD_7BIT)
 /**
- * the wire library has a end() function.
- * This macro signals to user code that it is available
+ * @brief I2C peripheral configuration
  */
-#define WIRE_HAS_END 1
-
-#ifndef WIRE_BUFFER_LENGTH
-  #define WIRE_BUFFER_LENGTH 32
-#endif
-
-#define WIRE_TIMEOUT 0x40000ul
-
-#define WIRE_PIN_INVALID 0xff
-
-/**
- * results of a I2C transmission
- */
-enum TwoWireStatus : uint8_t
+struct i2c_peripheral_config_t
 {
   /**
-   * transmission was successful
+   * @brief I2C peripheral register base address
    */
-  I2C_SUCCESS = 0,
+  M4_I2C_TypeDef *register_base;
 
   /**
-   * data too long to fit in transmit buffer
+   * @brief I2C peripheral clock id
+   * @note in FCG1
    */
-  I2C_DATA_TOO_LONG = 1,
+  uint32_t clock_id;
 
   /**
-   * received NACK on transmit of address
+   * @brief pin function for i2c scl pin
    */
-  I2C_NACK_ON_ADDRESS = 2,
+  en_port_func_t scl_pin_function;
 
   /**
-   * received NACK on transmit of data
+   * @brief pin function for i2c sda pin
    */
-  I2C_NACK_ON_DATA = 3,
-
-  /**
-   * other error
-   */
-  I2C_OTHER_ERROR = 4,
-
-  /**
-   * timeout
-   */
-  I2C_TIMEOUT = 5
+  en_port_func_t sda_pin_function;
 };
 
-/**
- * I2C / TWI library for HC32F460
- */
-class TwoWire
-{
+typedef enum slave_work_mode_t{
+  SLAVE_MODE_RX,
+  SLAVE_MODE_TX
+} slave_work_mode_t;
+
+class TwoWire{
 public:
-  /**
-   * @brief initialize without sda/scl pins.
-   * @param peripheral I2C peripheral
-   * @note sda/scl pins must be set using setSDA() and setSCL() before calling begin()
-   */
-  TwoWire(M4_I2C_TypeDef *peripheral)
-  {
-    TwoWire(peripheral, WIRE_PIN_INVALID, WIRE_PIN_INVALID);
+  TwoWire(i2c_peripheral_config_t *config, gpio_pin_t scl_pin, gpio_pin_t sda_pin);
+
+  void begin(uint32_t clockFreq = 100 * 1000);
+
+  void end() const;
+
+  void setClock(uint32_t clockFreq){
+    this->_clock_frequency = clockFreq;
   }
 
-  /**
-   * @brief initialize with sda/scl pins
-   * @param peripheral I2C peripheral
-   * @param sda the sda pin
-   * @param scl the scl pin
-   */
-  TwoWire(M4_I2C_TypeDef *peripheral, const gpio_pin_t sda, const gpio_pin_t scl);
+  [[nodiscard]] bool beginTransmission(uint8_t address) const;
+  void endTransmission(bool stopBit = true) const;
 
-  /**
-   * @brief initialize the Wire library and join a I2C bus as a controller
-   */
-  void begin(uint32_t baud = 100000);
+  [[nodiscard]] size_t write(uint8_t data) const;
+  size_t write(const uint8_t * data, size_t quantity) const;
+  size_t requestFrom(uint8_t address, uint8_t register_address, uint8_t *buffer, uint8_t quantity , bool sendStop = true) const;
 
-  /**
-   * @brief initialize the Wire library and join a I2C bus as a peripheral
-   */
-  // TODO: void begin(uint8_t address);
-
-  /**
-   * @brief disable the Wire library and release I2C bus control
-   * @note SDA and SCL pins are NOT reverted to GPIO function
-   */
-  void end();
-
-  /**
-   * @brief set the clock frequency for the I2C bus
-   */
-  // TODO: void setClock(uint32_t clockFreq);
-
-  /**
-   * @brief begin a transmission to the I2C peripheral with the given address
-   * @param address the 7-bit I2C address of the peripheral to transmit to
-   * @return the result of the transmission. see TwoWireTransmissionResult
-   * @note no bytes are send until endTransmission() is called
-   */
-  TwoWireStatus beginTransmission(uint8_t address);
-
-  /**
-   * @brief end a I2C transmission
-   * @param stopBit if true, a stop bit is sent after the transmission.
-   * 			    if false, the bus is left in a state where a restart can be performed
-   * @return the result of the transmission. see TwoWireTransmissionResult
-   */
-  TwoWireStatus endTransmission(bool stopBit = true);
-
-  /**
-   * @brief request a number of bytes from a I2C peripheral
-   * @param address the 7-bit I2C address of the peripheral to request from
-   * @param quantity the number of bytes to request
-   * @param stopBit if true, a stop bit is sent after the transmission.
-   * 			    if false, the bus is left in a state where a restart can be performed
-   * @return the result of the transmission. see TwoWireTransmissionResult
-   *
-   * @note the number of bytes received can be obtained using available()
-   */
-  TwoWireStatus _requestFrom(uint8_t address, size_t quantity, bool stopBit = true);
-
-  /**
-   * @brief request a number of bytes from a I2C peripheral
-   * @param address the 7-bit I2C address of the peripheral to request from
-   * @param quantity the number of bytes to request
-   * @param stopBit if true, a stop bit is sent after the transmission.
-   * 			    if false, the bus is left in a state where a restart can be performed
-   * @return the number of bytes received
-   */
-  uint8_t requestFrom(uint8_t address, size_t quantity, bool stopBit = true)
-  {
-    const TwoWireStatus status = _requestFrom(address, quantity, stopBit);
-    CORE_DEBUG_PRINTF("requestFrom addr=%02X status=%d\n", address, status);
-    return available();
-  }
-
-  /**
-   * @brief write a single byte to the I2C bus
-   * @return the number of bytes written
-   */
-  size_t write(uint8_t data);
-
-  /**
-   * @brief write a number of bytes to the I2C bus
-   * @param data the data to write
-   * @param len the number of bytes to write
-   * @return the number of bytes written
-   */
-  size_t write(const uint8_t *data, size_t len);
-
-  /**
-   * @brief the number of bytes available to read
-   * @return the number of bytes available to read
-   */
-  int available(void)
-  {
-    return this->rx_buffer_len;
-  }
-
-  /**
-   * @brief read a single byte from the I2C bus
-   * @return the byte read
-   */
-  virtual int read(void)
-  {
-    int res = this->peek();
-    if (res != -1)
-    {
-      this->rx_buffer_index++;
-    }
-
-    return res;
-  }
-
-  /**
-   * @brief get the next byte from the I2C bus without removing it from the buffer
-   * @return the next byte from the I2C bus
-   */
-  virtual int peek(void)
-  {
-    if (this->rx_buffer_index >= this->rx_buffer_len)
-    {
-      return -1;
-    }
-
-    return this->rx_buffer[this->rx_buffer_index];
-  }
-
-  /**
-   * @brief flush the receive buffer
-   */
-  virtual void flush(void)
-  {
-    this->rx_buffer_len = 0;
-    this->rx_buffer_index = 0;
-  }
-
-  /**
-   * @brief set the SDA pin
-   * @note must be called before begin()
-   */
-  void setSDA(const gpio_pin_t sda)
-  {
-    this->sda_pin = sda;
-  }
-
-  /**
-   * @brief set the SCL pin
-   * @note must be called before begin()
-   */
-  void setSCL(const gpio_pin_t scl)
-  {
-    this->scl_pin = scl;
-  }
-
+  [[nodiscard]] bool isDeviceOnline(uint8_t address) const;
+  void scanDevices(voidFuncPtrWithArg callback = nullptr) const;
 private:
-  /**
-   * @brief I2C peripheral
-   */
-  M4_I2C_TypeDef *peripheral = nullptr;
+  i2c_peripheral_config_t *_config;
+  bool isInitialized;
 
-  /**
-   * @brief SDA pin
-   */
-  gpio_pin_t sda_pin;
+  gpio_pin_t _scl_pin;
+  gpio_pin_t _sda_pin;
 
-  /**
-   * @brief SCL pin
-   */
-  gpio_pin_t scl_pin;
-
-  /**
-   * @brief receive buffer
-   */
-  uint8_t rx_buffer[WIRE_BUFFER_LENGTH];
-
-  /**
-   * @brief amount of data in the receive buffer
-   */
-  size_t rx_buffer_len = 0;
-
-  /**
-   * @brief index of the next byte to read from the receive buffer
-   */
-  size_t rx_buffer_index = 0;
-
-  /**
-   * @brief transmit buffer
-   */
-  uint8_t tx_buffer[WIRE_BUFFER_LENGTH];
-
-  /**
-   * @brief amount of data in the transmit buffer
-   */
-  size_t tx_buffer_len = 0;
-
-  /**
-   * @brief the address of the peripheral to transmit to
-   */
-  uint8_t tx_address;
+  uint32_t _clock_frequency;
 };
 
 extern TwoWire Wire;
-#endif /* TWO_WIRE_H_ */

@@ -1,7 +1,12 @@
-#ifndef _CORE_DEBUG_H
-#define _CORE_DEBUG_H
+#ifndef CORE_DEBUG_H
+#define CORE_DEBUG_H
 
-#include <stdio.h>
+#ifdef __cplusplus
+#include <cstdio>
+#else
+#include <stdlib.h>
+#endif
+
 #include "drivers/panic/panic.h"
 #include "core_util.h"
 
@@ -46,4 +51,4 @@
 #define ASSERT_GPIO_PIN_VALID(gpio_pin, fn_name, ...) \
     CORE_ASSERT(IS_GPIO_PIN(gpio_pin), "invalid GPIO pin supplied to " fn_name, ##__VA_ARGS__)
 
-#endif // _CORE_DEBUG_H
+#endif // CORE_DEBUG_H

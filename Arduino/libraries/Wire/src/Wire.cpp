@@ -1,313 +1,177 @@
+#include <Arduino.h>
 #include "Wire.h"
-#include "drivers/gpio/gpio.h"
-#include "Drivers/usart/Usart.h"
 
-TwoWire Wire(M4_I2C1, PA8, PA9);
-/**
- * i2c unit to number 1-3
- */
-#define I2C_UNIT_TO_N(unit) ((unit) == M4_I2C1 ? 1    \
-      : (unit) == M4_I2C2 ? 2                         \
-      : (unit) == M4_I2C3 ? 3                         \
-      : -1)
+i2c_peripheral_config_t I2C2_config = {
+    .register_base    = M4_I2C2,
+    .clock_id         = PWC_FCG1_PERIPH_I2C2,
+    .scl_pin_function = Func_I2c2_Scl,
+    .sda_pin_function = Func_I2c2_Sda,
+};
 
-/**
- * debug print for TwoWire class
- */
-#ifdef TWO_WIRE_DEBUG
-#define TWO_WIRE_DEBUG_PRINTF(fmt, ...)                                              \
-        printf("[I2C%d] " fmt, I2C_UNIT_TO_N(this->peripheral), ##__VA_ARGS__)
+TwoWire Wire(&I2C2_config, PA9, PA8);
+
+#define REG_TO_I2Cx(reg) ((reg == CM_I2C1) ? "I2C1" : (reg == CM_I2C2) ? "I2C2" \
+                                                  : (reg == CM_I2C3)   ? "I2C3" \
+                                                                       : "Unknown")
+//#define WIRE_ENABLE_DEBUG
+#ifdef WIRE_ENABLE_DEBUG
+#define WIRE_DEBUG_PRINTF(fmt, ...) CORE_DEBUG_PRINTF("[%s] " fmt, REG_TO_I2Cx(this->_config->register_base), ##__VA_ARGS__)
 #else
-#define TWO_WIRE_DEBUG_PRINTF(fmt, ...)
+#define WIRE_DEBUG_PRINTF(fmt, ...)
 #endif
-/**
- * @brief clone of I2C_TransData, modified to return TwoWireStatus instead of en_result_t
- * @param periph I2C peripheral
- * @param data data to send
- * @param size size of data
- * @param timeout timeout in ms
- * @return result of transmission
- */
-TwoWireStatus I2C_TransferDataW(M4_I2C_TypeDef *periph, const uint8_t data[], size_t size, uint32_t timeout)
+TwoWire::TwoWire(i2c_peripheral_config_t *config, const gpio_pin_t scl_pin, const gpio_pin_t sda_pin)
 {
-  volatile size_t sent = 0ul;
-  while ((sent < size))
-  {
-    // wait for TX buffer to be empty
-    if (I2C_WaitStatus(periph, I2C_SR_TEMPTYF, Set, timeout) != Ok)
-    {
-      return I2C_TIMEOUT;
-    }
+    this->_config  = config;
+    this->_scl_pin = scl_pin;
+    this->_sda_pin = sda_pin;
+    this->_clock_frequency = 0;
+    this->isInitialized = false;
+#ifdef _WIRE_USE_RINGBUFFER
+    this->rxbuff = (uint8_t *)lwmem_malloc(WIRE_BUFF_SIZE);
+    this->txbuff = (uint8_t *)lwmem_malloc(WIRE_BUFF_SIZE);
 
-    // send one byte of data
-    I2C_WriteData(periph, data[sent]);
-    sent++;
-
-    // wait for transfer to complete
-    if (I2C_WaitStatus(periph, I2C_SR_TENDF, Set, timeout) != Ok)
-    {
-      return I2C_TIMEOUT;
-    }
-
-    // check for NACK flag
-    if (I2C_GetStatus(periph, I2C_SR_NACKF) == Set)
-    {
-      I2C_ClearStatus(periph, I2C_CLR_NACKFCLR);
-      return I2C_NACK_ON_DATA;
-    }
-  }
-
-  return I2C_SUCCESS;
+    lwrb_init(&this->rx_rb_t, this->rxbuff, WIRE_BUFF_SIZE);
+    lwrb_init(&this->tx_rb_t, this->txbuff, WIRE_BUFF_SIZE);
+#endif
 }
 
-/**
- * @brief clone of I2C_TransAddr, modified to return TwoWireStatus instead of en_result_t
- */
-TwoWireStatus I2C_ReceiveDataW(M4_I2C_TypeDef *perih, uint8_t data[], size_t capacity, size_t &received,
-                               uint32_t timeout, bool stop)
+void TwoWire::begin(const uint32_t clockFreq)
 {
-  bool fastAck = perih->CR3_f.FACKEN == 0;
-  for (received = 0; received < capacity; received++)
-  {
-    // wait for RX buffer to be full
-    if (I2C_WaitStatus(perih, I2C_SR_RFULLF, Set, timeout) != Ok)
-    {
-      return I2C_TIMEOUT;
+    this->_clock_frequency = clockFreq;
+
+    GPIO_SetFunc(this->_scl_pin, this->_config->scl_pin_function);
+    GPIO_SetFunc(this->_sda_pin, this->_config->sda_pin_function);
+
+    PWC_Fcg1PeriphClockCmd(this->_config->clock_id, Enable);
+
+    stc_i2c_init_t stcI2cInit;
+    float32_t fErr;
+
+    (void)I2C_DeInit(this->_config->register_base);
+    MEM_ZERO_STRUCT(stcI2cInit);
+    if (this->_clock_frequency <= 100 * 1000) {
+        stcI2cInit.u32ClockDiv = I2C_CLK_DIV8;
+        stcI2cInit.u32Baudrate = this->_clock_frequency;
+        stcI2cInit.u32SclTime  = 3UL;
+    } else if (this->_clock_frequency == 400 * 1000) {
+        stcI2cInit.u32ClockDiv = I2C_CLK_DIV2;
+        stcI2cInit.u32Baudrate = this->_clock_frequency;
+        stcI2cInit.u32SclTime  = 5UL;
     }
 
-    // ??
-    if (fastAck)
-    {
-      if ((capacity >= 2) && (received == (capacity - 2)))
-      {
-        I2C_AckConfig(perih, I2c_NACK);
-      }
-    }
-    else
-    {
-      if (received != (capacity - 1))
-      {
-        I2C_AckConfig(perih, I2c_ACK);
-      }
-      else
-      {
-        I2C_AckConfig(perih, I2c_NACK);
-      }
+    if (const en_result_t result = I2C_Init(this->_config->register_base, &stcI2cInit, &fErr); result != Ok) {
+        WIRE_DEBUG_PRINTF("Failed to initialize I2C, error:%f, ret = %d", fErr, result);
+        return;
     }
 
-    // stop before reading last data byte
-    if (received == (capacity - 1) && stop)
-    {
-      I2C_ClearStatus(perih, I2C_CLR_STOPFCLR);
-      I2C_GenerateStop(perih, Enable);
+
+    I2C_BusWaitCmd(this->_config->register_base, Enable);
+
+
+    this->isInitialized = true;
+    WIRE_DEBUG_PRINTF("I2c init success, in mode: master\n");
+}
+
+void TwoWire::end() const {
+    I2C_DeInit(this->_config->register_base);
+}
+
+bool TwoWire::beginTransmission(const uint8_t address) const {
+    bool result     = false;
+
+    I2C_Cmd(this->_config->register_base, Enable);
+
+    I2C_SoftwareResetCmd(this->_config->register_base, Enable);
+    I2C_SoftwareResetCmd(this->_config->register_base, Disable);
+    if (Ok == I2C_Start(this->_config->register_base, WIRE_TIMEOUT)) {
+        if (Ok == I2C_TransAddr(this->_config->register_base, address, I2CDirTrans, WIRE_TIMEOUT)) {
+            result = true;
+        }
     }
+    return result;
+}
 
-    // read one byte of data
-    data[received] = I2C_ReadData(perih);
-
-    // wait for stop flag after read
-    if (received == (capacity - 1))
-    {
-      if (I2C_WaitStatus(perih, I2C_SR_STOPF, Set, timeout) != Ok)
-      {
-        return I2C_TIMEOUT;
-      }
+void TwoWire::endTransmission(const bool stopBit) const {
+    if (stopBit) {
+        // Stop by software
+        I2C_Stop(this->_config->register_base, WIRE_TIMEOUT);
+        // Disable I2C
+        I2C_Cmd(this->_config->register_base, Disable);
     }
-  }
-
-  I2C_AckConfig(perih, I2c_ACK);
-  return I2C_SUCCESS;
 }
 
-//
-// TwoWire class implementation
-//
-TwoWire::TwoWire(M4_I2C_TypeDef *peripheral, const gpio_pin_t sda, const gpio_pin_t scl)
+size_t TwoWire::write(const uint8_t data) const {
+    if (Ok == I2C_TransData(this->_config->register_base, &data, 1, WIRE_TIMEOUT)) {
+        return 1;
+    }
+    return 0;
+}
+
+size_t TwoWire::write(const uint8_t *data, const size_t quantity) const
 {
-  this->peripheral = peripheral;
-  this->sda_pin = sda;
-  this->scl_pin = scl;
-}
-
-void TwoWire::begin(uint32_t baud)
-{
-  // ensure device & pins are configured
-  CORE_ASSERT(this->peripheral != nullptr, "device not set");
-  ASSERT_GPIO_PIN_VALID(this->sda_pin, "TwoWire::begin");
-  ASSERT_GPIO_PIN_VALID(this->scl_pin, "TwoWire::begin");
-
-  // de-init peripheral if already initialized
-  end();
-
-  // get clock and pin functions
-  uint32_t peripheral_clock;
-  en_port_func_t sda_func, scl_func;
-  switch (I2C_UNIT_TO_N(this->peripheral))
-  {
-    case 1:
-      // I2C1
-      peripheral_clock = PWC_FCG1_PERIPH_I2C1;
-      sda_func = Func_I2c1_Sda;
-      scl_func = Func_I2c1_Scl;
-      break;
-    case 2:
-      // I2C2
-      peripheral_clock = PWC_FCG1_PERIPH_I2C2;
-      sda_func = Func_I2c2_Sda;
-      scl_func = Func_I2c2_Scl;
-      break;
-    case 3:
-      // I2C3
-      peripheral_clock = PWC_FCG1_PERIPH_I2C3;
-      sda_func = Func_I2c3_Sda;
-      scl_func = Func_I2c3_Scl;
-      break;
-    default:
-      CORE_ASSERT_FAIL("invalid I2C peripheral");
-      return;
-  }
-
-  // enable peripheral clock
-  PWC_Fcg1PeriphClockCmd(peripheral_clock, Enable);
-
-  // configure pins
-  GPIO_SetFunc(this->sda_pin, sda_func);
-  GPIO_SetFunc(this->scl_pin, scl_func);
-
-  // configure peripheral
-  // TODO: i2c configuration is hard-coded here
-  stc_i2c_init_t init = {.u32ClockDiv = I2C_CLK_DIV8, .u32Baudrate = baud, .u32SclTime = 0};
-  float32_t baud_error;
-  if(I2C_Init(this->peripheral, &init, &baud_error) != Ok)
-  {
-		TWO_WIRE_DEBUG_PRINTF("init with err=%d%%\n", (int)(baud_error * 100));
-	}
-	else
-	{
-		TWO_WIRE_DEBUG_PRINTF("init with success\n");
-	}
-
-  // enable bus wait
-  I2C_BusWaitCmd(this->peripheral, Enable);
-}
-
-void TwoWire::end()
-{
-  I2C_DeInit(this->peripheral);
-  TWO_WIRE_DEBUG_PRINTF("deinit\n");
-}
-
-TwoWireStatus TwoWire::beginTransmission(uint8_t address)
-{
-  this->tx_address = address;
-  this->tx_buffer_len = 0;
-	
-	  // enable peripheral
-  I2C_Cmd(this->peripheral, Enable);
-
-  I2C_SoftwareResetCmd(this->peripheral, Enable);
-  I2C_SoftwareResetCmd(this->peripheral, Disable);
-
-  // send start condition
-  en_result_t rc = I2C_Start(this->peripheral, WIRE_TIMEOUT);
-  if (rc == ErrorTimeout)
-  {
-    TWO_WIRE_DEBUG_PRINTF("I2C_Start Error: %s\n", en_result_to_string(rc));
-		I2C_Stop(this->peripheral, WIRE_TIMEOUT);
-    I2C_Cmd(this->peripheral, Disable);
-    return I2C_TIMEOUT;
-  }
-
-  // send address
-  rc = I2C_TransAddr(this->peripheral, address, I2CDirTrans, WIRE_TIMEOUT);
-  if (rc == Ok)
-  {
-    return I2C_SUCCESS;
-  }
-  TWO_WIRE_DEBUG_PRINTF("I2C_TransAddr Error: %s\n", en_result_to_string(rc));
-  I2C_Stop(this->peripheral, WIRE_TIMEOUT);
-  I2C_Cmd(this->peripheral, Disable);
-  return I2C_TIMEOUT;
-
-}
-
-TwoWireStatus TwoWire::endTransmission(bool stopBit)
-{
-	en_result_t ret = Ok;
-  // send stop condition and disable peripheral
-  if (stopBit)
-  {
-    ret = I2C_Stop(this->peripheral, WIRE_TIMEOUT);
-    I2C_Cmd(this->peripheral, Disable);
-  }
-	else
-	{
-		ret = I2C_Restart(this->peripheral, WIRE_TIMEOUT);
-	}
-	
-	if(ret == Ok)
-		return I2C_SUCCESS;
-	
-	return I2C_TIMEOUT;
-}
-
-size_t TwoWire::write(uint8_t data)
-  {
-		  // send data
-		TwoWireStatus tx_result = I2C_TransferDataW(this->peripheral, &data, 1, WIRE_TIMEOUT);
-		if(tx_result != I2C_SUCCESS)
-			return 0;
-		
-		TWO_WIRE_DEBUG_PRINTF("sending 1 bytes to 0x%02X \n", this->tx_address);
-    return 1;
-  }
-	
-size_t TwoWire::write(const uint8_t *data, size_t len)
-  {
-		TwoWireStatus tx_result = I2C_TransferDataW(this->peripheral, data, len, WIRE_TIMEOUT);
-		if(tx_result != I2C_SUCCESS)
-			return 0;
-		
-		TWO_WIRE_DEBUG_PRINTF("sending %d bytes to 0x%02X \n", len, this->tx_address);
+    size_t len = 0;
+    for (size_t i = 0; i < quantity; i++) {
+        len += write(*data++);
+    }
     return len;
-  }
-	
-TwoWireStatus TwoWire::_requestFrom(uint8_t address, size_t quantity, bool stopBit)
+}
+
+size_t TwoWire::requestFrom(const uint8_t address, const uint8_t register_address, uint8_t *buffer, uint8_t quantity, const bool sendStop) const {
+    if (write(register_address) == 0) {
+        WIRE_DEBUG_PRINTF("I2c write register address failed\n");
+        return 0;
+    }
+    en_result_t ret = I2C_Restart(this->_config->register_base, WIRE_TIMEOUT);
+    if (ret != Ok) {
+        WIRE_DEBUG_PRINTF("I2c restart failed, ret = %d\n", ret);
+        return 0;
+    }
+    if (1UL == quantity) {
+        I2C_AckConfig(this->_config->register_base, I2c_NACK);
+    }
+    ret = I2C_TransAddr(this->_config->register_base, address, I2CDirReceive, WIRE_TIMEOUT);
+    if (ret != Ok) {
+        WIRE_DEBUG_PRINTF("I2c restart trans addr failed, ret = %d\n", ret);
+        return 0;
+    }
+    if (sendStop) {
+        ret = I2C_MasterDataReceiveAndStop(this->_config->register_base, buffer, quantity, WIRE_TIMEOUT);
+    }
+    I2C_AckConfig(this->_config->register_base, I2c_ACK);
+    if (ret != Ok) {
+        I2C_Stop(this->_config->register_base, WIRE_TIMEOUT);
+        WIRE_DEBUG_PRINTF("I2c read register 0x%02x form 0x%02x  %d bytes failed, return %d\n", register_address, address, quantity, ret);
+        quantity = 0;
+    } else {
+        WIRE_DEBUG_PRINTF("I2c read register 0x%02x form 0x%02x %d bytes success\n", register_address, address, quantity);
+    }
+    I2C_Cmd(this->_config->register_base, Disable);
+    return quantity;
+}
+
+bool TwoWire::isDeviceOnline(const uint8_t address) const
 {
-  CORE_ASSERT(quantity <= WIRE_BUFFER_LENGTH, "quantity larger than RX buffer size", return I2C_OTHER_ERROR);
+    if (beginTransmission(address)) {
+        endTransmission();
+    } else {
+        endTransmission();
+        return false;
+    }
+    return true;
+}
 
-  TWO_WIRE_DEBUG_PRINTF("requesting %d bytes from 0x%02X (stop=%d)\n", quantity, address, stopBit);
-
-  // send start condition
-  en_result_t rc;
-	
-  if (quantity == 1)
-  {
-    I2C_AckConfig(this->peripheral, I2c_NACK);
-  }
-
-  // send address
-  rc = I2C_TransAddr(this->peripheral, address, I2CDirReceive, WIRE_TIMEOUT);
-  if (rc == ErrorTimeout)
-  {
-    TWO_WIRE_DEBUG_PRINTF("timeout on I2C_TransAddr\n");
-    return I2C_TIMEOUT;
-  }
-  else if (rc == Error)
-  {
-    return I2C_NACK_ON_ADDRESS;
-  }
-
-  // receive data
-  TwoWireStatus rx_result = I2C_ReceiveDataW(this->peripheral, this->rx_buffer, quantity,
-                                             this->rx_buffer_len, WIRE_TIMEOUT, stopBit);
-
-  // send stop condition and disable peripheral
-  if (stopBit & (rx_result != I2C_SUCCESS) )
-  {
-    I2C_Stop(this->peripheral, WIRE_TIMEOUT);
-
-  }
-  I2C_Cmd(this->peripheral, Disable);
-  return rx_result;
+void TwoWire::scanDevices(const voidFuncPtrWithArg callback) const
+{
+    for (uint8_t i = 0x01; i < 0x7F; i++) {
+        if (isDeviceOnline(i)) {
+            if (callback) {
+                callback(&i);
+            }else{
+                CORE_DEBUG_PRINTF("Found device address: %02x\n", i);
+            }
+        }
+        // else{
+        //     CORE_DEBUG_PRINTF("Not found device address: %02x\n", i);
+        // }
+    }
 }

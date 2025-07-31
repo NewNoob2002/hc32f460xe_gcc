@@ -1,31 +1,49 @@
 #include "mp2762a.h"
 
-// Wire *mp2762aI2c = nullptr;
+TwoWire *mp2762aI2c = nullptr;
 
-// bool mp2762aBegin(Wire &i2cBus)
-// {
-//     if(i2cBus.isDeviceOnline(MP2762A_DEVICE_ADDRESS) == false)
-//         return false;
-//     mp2762aI2c = &i2cBus;
-//     return true;
-// }
-
-uint8_t mp2762aReadRegister8(uint8_t reg)
+bool mp2762aBegin(TwoWire &i2cBus)
 {
-    uint8_t data = 0;
-    return data;
+    if(i2cBus.isDeviceOnline(MP2762A_DEVICE_ADDRESS) == false)
+        return false;
+    mp2762aI2c = &i2cBus;
+    return true;
 }
 
-uint16_t mp2762aReadRegister16(uint8_t reg)
+uint8_t mp2762aReadRegister8(const uint8_t reg)
 {
-    uint16_t value = 0;
-    return value;
+    uint8_t  byte= 0;
+
+    if(mp2762aI2c->beginTransmission(MP2762A_DEVICE_ADDRESS))
+    {
+        mp2762aI2c->requestFrom(MP2762A_DEVICE_ADDRESS, reg, &byte, 1);
+    }
+    return byte;
 }
 
-uint8_t mp2762aWriteRegister8(uint8_t reg, uint8_t data)
+uint16_t mp2762aReadRegister16(const uint8_t reg)
 {
-    uint8_t ret = 0;
-    return ret;
+    uint8_t buf[2];
+
+    if(mp2762aI2c->beginTransmission(MP2762A_DEVICE_ADDRESS))
+    {
+        mp2762aI2c->requestFrom(MP2762A_DEVICE_ADDRESS, reg, buf, 2);
+    }
+    return (buf[1] << 8) | buf[0];;
+}
+
+uint8_t mp2762aWriteRegister8(const uint8_t reg, const uint8_t data)
+{
+    if(mp2762aI2c->beginTransmission(MP2762A_DEVICE_ADDRESS))
+    {
+        const uint8_t buf[2] = {reg, data};
+        if (mp2762aI2c->write(buf, 2) > 0) {
+            mp2762aI2c->endTransmission();
+            return 1;
+        }
+    }
+    mp2762aI2c->endTransmission();
+    return 0;
 }
 
 // Given a bit field, and a startingBitValue
@@ -47,59 +65,59 @@ float convertBitsToDoubler(uint16_t bitField, float startingBitValue)
 
 // Set the Precharge threshold
 // 5.8V, 6.0, 6.2, 6.4, 6.6, 6.8, 7.4, 7.2 (oddly out of order)
-void mp2762setFastChargeVoltageMv(uint16_t mVoltLevel)
+void mp2762setFastChargeVoltageMv(const uint16_t mVoltLevel)
 {
     // Default to 6.8V (requires option '2')
     uint8_t option = 1;         // This is option 2 confusingly
-    uint8_t newVbattPre = 0b01; // Default to 6.8V
+    uint8_t newV_battPre = 0b01; // Default to 6.8V
 
     if (mVoltLevel <= 5800)
     {
         option = 0;
-        newVbattPre = 0b00; // 5.8V
+        newV_battPre = 0b00; // 5.8V
     }
     else if (mVoltLevel <= 6000)
     {
         option = 0;
-        newVbattPre = 0b01; // 6.0V
+        newV_battPre = 0b01; // 6.0V
     }
     else if (mVoltLevel <= 6200)
     {
         option = 0;
-        newVbattPre = 0b10; // 6.2V
+        newV_battPre = 0b10; // 6.2V
     }
     else if (mVoltLevel <= 6400)
     {
         option = 0;
-        newVbattPre = 0b11; // 6.4V
+        newV_battPre = 0b11; // 6.4V
     }
     else if (mVoltLevel <= 6600)
     {
         option = 1;
-        newVbattPre = 0b00; // 6.6V
+        newV_battPre = 0b00; // 6.6V
     }
     else if (mVoltLevel <= 6800)
     {
         option = 1;
-        newVbattPre = 0b01; // 6.8V
+        newV_battPre = 0b01; // 6.8V
     }
     else if (mVoltLevel <= 7200)
     {
         option = 1;
-        newVbattPre = 0b11; // 7.2V
+        newV_battPre = 0b11; // 7.2V
     }
     else if (mVoltLevel <= 7400)
     {
         option = 1;
-        newVbattPre = 0b10; // 7.4V
+        newV_battPre = 0b10; // 7.4V
     }
 
     // Set the Precharge bits
     uint8_t status = 0;
     status = mp2762aReadRegister8(MP2762A_PRECHARGE_THRESHOLD);
     status &= ~(0b11 << 4); // Clear bits 4 and 5
-    newVbattPre <<= 4;      // Shift to correct position
-    status |= newVbattPre;  // Set bits accordingly
+    newV_battPre <<= 4;      // Shift to correct position
+    status |= newV_battPre;  // Set bits accordingly
     mp2762aWriteRegister8(MP2762A_PRECHARGE_THRESHOLD, status);
 
     // Set the option bit
@@ -110,16 +128,23 @@ void mp2762setFastChargeVoltageMv(uint16_t mVoltLevel)
     mp2762aWriteRegister8(MP2762A_PRECHARGE_THRESHOLD_OPTION, status);
 }
 
-void mp2762setFastChargeCurrentMa(uint16_t currentLevelMa)
+void mp2762setFastChargeCurrentMa(const uint16_t currentLevelMa)
 {
-    // defualt to 1A
-    //  uint8_t oldBit = 0x00;
-    //  mp2762ReadRegister8(MP2762A_SETCHARGE_CURRENT, &oldBit);
-    uint8_t newIFast = 0b00100001;
+    // default to 1 A
+    uint8_t newIFast = 0x14;
+    if(currentLevelMa <= 1000)
+    {
+        newIFast = 0x14;
+    }
+    else
+    {
+        const uint16_t steps = currentLevelMa / 50;
+        newIFast = 0x01 * steps;
+    }
     mp2762aWriteRegister8(MP2762A_SETCHARGE_CURRENT, newIFast);
 }
 
-void mp2762setPrechargeCurrentMa(uint16_t currentLevelMa)
+void mp2762setPrechargeCurrentMa(const uint16_t currentLevelMa)
 {
     uint8_t newIPre = 0b0011; // Default to 180mA
 
@@ -127,7 +152,7 @@ void mp2762setPrechargeCurrentMa(uint16_t currentLevelMa)
         newIPre = 0b0011; // 180mA
     else
     {
-        uint8_t steps = (currentLevelMa - 240) / 60; //(480 - 240)/ 60 = 4
+        const uint8_t steps = (currentLevelMa - 240) / 60; //(480 - 240)/ 60 = 4
         newIPre = 0b0101 + steps;
     }
 
@@ -143,14 +168,14 @@ void mp2762setPrechargeCurrentMa(uint16_t currentLevelMa)
 float mp2762getBatteryVoltageMv()
 {
     uint16_t voltage = mp2762aReadRegister16(MP2762A_BATTERY_VOLTAGE);
-    float batteryVoltage = convertBitsToDoubler(voltage >>= 6, 12.5); // Battery voltage is bit 15:6 so we need a 6 bit shift
+    const float batteryVoltage = convertBitsToDoubler(voltage >>= 6, 12.5); // Battery voltage is bit 15:6 so we need a 6 bit shift
     return (batteryVoltage);
 }
 
 float mp2762getSystemVoltageMv()
 {
     uint16_t voltage = mp2762aReadRegister16(MP2762A_SYSTEM_VOLTAGE);
-    float batteryVoltage = convertBitsToDoubler(voltage >>= 6, 12.5); // Battery voltage is bit 15:6 so we need a 6 bit shift
+    const float batteryVoltage = convertBitsToDoubler(voltage >>= 6, 12.5); // Battery voltage is bit 15:6 so we need a 6 bit shift
     return (batteryVoltage);
 }
 
@@ -172,11 +197,11 @@ float mp2762getChargeCurrentMa()
     uint16_t Current = (CurrentH << 8) | CurrentL;
     Current = (Current >> 6) & 0x03FF;
 
-    float charge_current_mA = Current * 12.5;
+    const float charge_current_mA = Current * 12.5;
     return charge_current_mA;
 }
 
-float mp2762getInputVolatgeMv()
+float mp2762getInputVoltageMv()
 {
     uint8_t VoltageL = 0, VoltageH = 0;
     VoltageL = mp2762aReadRegister8(MP2762A_INPUT_VOLTAGE_L);
@@ -185,7 +210,7 @@ float mp2762getInputVolatgeMv()
     uint16_t Voltage = (VoltageL << 8) | VoltageH;
     Voltage = (Voltage >> 6) & 0x03FF;
 
-    float Input_voltage_mV = Voltage * 25;
+    const float Input_voltage_mV = Voltage * 25;
     return Input_voltage_mV;
 }
 
@@ -198,7 +223,7 @@ float mp2762getInputCurrentMa()
     uint16_t Current = (CurrentH << 8) | CurrentL;
     Current = (Current >> 6) & 0x03FF;
 
-    float charge_current_mA = Current * 6.25;
+    const float charge_current_mA = Current * 6.25;
     return charge_current_mA;
 }
 

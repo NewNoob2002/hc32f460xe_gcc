@@ -1,6 +1,7 @@
-#ifndef __MP2762A_H__
-#define __MP2762A_H__
+#ifndef MP2762A_H_
+#define MP2762A_H_
 #include "mcu_config.h"
+#include "Wire/src/Wire.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,7 +26,7 @@ extern "C" {
 #define MP2762A_INPUT_CURRENT_H 0x1F
 #define MP2762A_PRECHARGE_THRESHOLD_OPTION 0x30
 
-// bool mp2762aBegin(Wire &i2cBus);
+bool mp2762aBegin(TwoWire &i2cBus);
 
 uint8_t mp2762aReadRegister8(uint8_t reg);
 
@@ -33,12 +34,12 @@ uint16_t mp2762aReadRegister16(uint8_t reg);
 
 uint8_t mp2762aWriteRegister8(uint8_t reg, uint8_t data);
 
-// Given a bit field, and a startingBitValue
-// Example: Battery voltage is bit 12.5mV per bit
+// Given field, and a startingBitValue
+// Example: Battery voltage is bit 12.5 mV per bit a bit
 float convertBitsToDoubler(uint16_t bitField, float startingBitValue);
 
 // Set the Precharge threshold
-// 5.8V, 6.0, 6.2, 6.4, 6.6, 6.8, 7.4, 7.2 (oddly out of order)
+// 5.8 V, 6.0, 6.2, 6.4, 6.6, 6.8, 7.4, 7.2 (oddly out of order)
 void mp2762setFastChargeVoltageMv(uint16_t mVoltLevel);
 
 void mp2762setFastChargeCurrentMa(uint16_t currentLevelMa);
@@ -53,7 +54,7 @@ uint8_t mp2762getChargeStatus();
 
 float mp2762getChargeCurrentMa();
 
-float mp2762getInputVolatgeMv();
+float mp2762getInputVoltageMv();
 
 float mp2762getInputCurrentMa();
 

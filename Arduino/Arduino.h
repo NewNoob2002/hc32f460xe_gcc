@@ -40,13 +40,12 @@
 #ifdef __cplusplus
 extern "C"{
 #endif // __cplusplus
-
+  // direct port manipulation for GPIO
+#include "drivers/gpio/direct_access.h"
+#include "delay.h"
+#include "system.h"
 #include "wiring_constants.h"
 #include "yield.h"
-
-  /* sketch */
-void setup( void ) ;
-void loop( void ) ;
 
 #include "WVariant.h"
 
@@ -56,6 +55,7 @@ void loop( void ) ;
 
 // The following headers are for C++ only compilation
 #ifdef __cplusplus
+#include "init.h"
 #include "WCharacter.h"
 #include "WString.h"
 //#include "Tone.h"
@@ -64,20 +64,27 @@ void loop( void ) ;
 #include "pulse.h"
 #endif
 
-#include "delay.h"
-#include "system.h"
-
+//drivers
 #ifdef __cplusplus
 #include "drivers/usart/Usart.h"
 #include "drivers/sysclock/sysclock.h"
 #include "drivers/sysclock/systick.h"
+#include "drivers/gpio/gpio.h"
+#include "drivers/adc/adc.h"
 #endif
 
+//wiring
+#ifdef __cplusplus
 #include "wiring_digital.h"
 #include "wiring_analog.h"
 #include "wiring_shift.h"
 #include "WInterrupts.h"
+#endif
 
+//libraries
+#ifdef __cplusplus
+#include "Wire/src/Wire.h"
+#endif
 // undefine stdlib's abs if encountered
 #ifdef abs
 #undef abs
@@ -101,7 +108,7 @@ void loop( void ) ;
 #define bitRead(value, bit) (((value) >> (bit)) & 0x01)
 #define bitSet(value, bit) ((value) |= (1UL << (bit)))
 #define bitClear(value, bit) ((value) &= ~(1UL << (bit)))
-#define bitWrite(value, bit, bitvalue) (bitvalue ? bitSet(value, bit) : bitClear(value, bit))
+#define bitWrite(value, bit, bit_value) (bit_value ? bitSet(value, bit) : bitClear(value, bit))
 
 #define bit(b) (1UL << (b))
 
@@ -109,8 +116,5 @@ void loop( void ) ;
 #ifndef F_CPU
   #define F_CPU (SYSTEM_CLOCK_FREQUENCIES.hclk)
 #endif
-
-// direct port manipulation for GPIO
-#include "drivers/gpio/direct_access.h"
 
 #endif // Arduino_h

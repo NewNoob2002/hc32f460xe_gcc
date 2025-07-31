@@ -1,7 +1,8 @@
 #ifndef BQ40Z50_H
 #define BQ40Z50_H
 
-#include <stdint.h>
+#include <cstdint>
+#include <Wire/src/Wire.h>
 //device address
 #define BQ40Z50_DEVICE_ADDRESS 0x0B
 //register address
@@ -29,7 +30,7 @@
 extern "C" {
 #endif
 
-// bool bq40z50Begin(Wire &i2cBus);
+bool bq40z50Begin(TwoWire &i2cBus);
 
 uint8_t bq40z50ReadRegister8(uint8_t reg);
 
@@ -39,13 +40,14 @@ float bq40z50getTemperatureC();
 
 uint16_t bq40z50getVoltageMv();
 
-int16_t bq40z50getCurrentMa();
+uint16_t bq40z50getCurrentMa();
 
-int16_t bq40z50getAverageCurrentMa();
+uint16_t bq40z50getAverageCurrentMa();
 
 uint8_t bq40z50getMaxError();
 
-float bq40z50getRelativeStateOfCharge(bool calculate = true);
+float bq40z50getRelativeStateOfCharge_float();
+uint16_t bq40z50getRelativeStateOfCharge();
 
 uint8_t bq40z50getAbsoluteStateOfCharge();
 

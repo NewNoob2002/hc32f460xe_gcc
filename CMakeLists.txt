@@ -41,6 +41,7 @@ include_directories(
         ${CMAKE_CURRENT_LIST_DIR}/Arduino
         ${CMAKE_CURRENT_LIST_DIR}/Arduino/avr
         ${CMAKE_CURRENT_LIST_DIR}/Arduino/drivers
+        ${CMAKE_CURRENT_LIST_DIR}/Arduino/libraries
         ${CMAKE_CURRENT_LIST_DIR}/Arduino/variants/generic_hc32f460
 
         ${CMAKE_CURRENT_LIST_DIR}/libraries/
