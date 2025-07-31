@@ -67,14 +67,16 @@ file(GLOB_RECURSE SOURCE_FILE
 )
 
 set(Application_Files
-        ${CMAKE_CURRENT_LIST_DIR}/user/main.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/user/init.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/user/src/battery.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/user/src/charger_control_new.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/user/src/LCD.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/user/src/led.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/user/src/MYSPI.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/user/src/power_control.cpp
+        user/main.cpp
+        user/init.cpp
+        user/src/battery.cpp
+        user/src/charger_control_new.cpp
+        user/src/LCD.cpp
+        user/src/led.cpp
+        user/src/MYSPI.cpp
+        user/src/power_control.cpp
+        user/src/nm_message.c
+        user/src/i2c_slave.c
 )
 # STM32 HAL/LL Drivers
 set(LL_Drivers_Src

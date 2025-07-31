@@ -86,7 +86,7 @@ public:
    * @brief get the last receive error
    * @note calling this function clears the error
    */
-  const usart_receive_error_t getReceiveError(void);
+  const usart_receive_error_t getReceiveError();
 
   #ifdef USART_RX_ERROR_COUNTERS_ENABLE
   /**
@@ -145,7 +145,7 @@ private:
 
   // rx / tx buffers (unboxed from config)
   RingBuffer<uint8_t> *rxBuffer;
-  RingBuffer<uint8_t> *txBuffer;
+  // RingBuffer<uint8_t> *txBuffer;
 
   // is initialized? (begin() called)
   bool initialized = false;

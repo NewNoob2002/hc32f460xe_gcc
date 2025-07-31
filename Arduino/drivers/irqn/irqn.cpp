@@ -129,7 +129,7 @@ en_result_t irqn_aa_resign_(IRQn_Type &irqn)
 en_result_t irqn_aa_get(IRQn_Type &irqn, const char *name)
 {
     if (irqn_aa_get_(irqn) != Ok) {
-//        CORE_ASSERT(false, "IRQn auto-assignment failed for %s\n", name);
+        CORE_ASSERT(false, "IRQn auto-assignment failed for %s\n", name);
     }
 
     CORE_DEBUG_PRINTF("IRQ%d auto-assigned to %s\n", static_cast<int>(irqn), name);

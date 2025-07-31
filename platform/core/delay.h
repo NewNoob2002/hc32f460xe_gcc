@@ -14,8 +14,8 @@ void delay_ms(uint32_t ms);
 
 void delay_us(uint32_t us);
 
-uint64_t millis();
-uint64_t micros();
+uint32_t millis();
+uint32_t micros();
 #endif
 
 #ifdef __cplusplus

@@ -61,7 +61,6 @@ void core_init()
     // setup lwmem
     const size_t region_count = lwmem_assignmem(regions);
     CORE_ASSERT(region_count > 0, "LwMEM initialization failed");
-    printf("LwMEM initialized and ready to use, region count: %d\r\n", region_count);
 }
 
 extern "C" int io_putChar(const char ch)

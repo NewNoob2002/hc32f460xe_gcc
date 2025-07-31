@@ -34,9 +34,5 @@
 #define CHARGE_LED_PIN PH2
 #define FUNCTION_LED_PIN PB5
 
-extern present_device present_devices;
-extern online_device online_devices;
-extern SystemParameter DisplayPannelParameter;
-extern BatteryState batteryState;
 
 #endif

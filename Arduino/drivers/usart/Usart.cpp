@@ -386,7 +386,7 @@ void Usart::disableRxDma()
 //
 Usart::Usart(struct usart_config_t *config, gpio_pin_t tx_pin, gpio_pin_t rx_pin, size_t rx_buffer_size, size_t tx_buffer_size)
 {
-    CORE_ASSERT(config != NULL, "USART() config cannot be NULL");
+    CORE_ASSERT(config != nullptr, "USART() config cannot be NULL");
     ASSERT_GPIO_PIN_VALID(tx_pin, "USART() tx_pin");
     ASSERT_GPIO_PIN_VALID(rx_pin, "USART() rx_pin");
 
@@ -399,7 +399,6 @@ Usart::Usart(struct usart_config_t *config, gpio_pin_t tx_pin, gpio_pin_t rx_pin
 //    this->txBuffer = new RingBuffer<uint8_t>(tx_buffer_size);
     CORE_ASSERT(this->rxBuffer != nullptr, "");
 //    CORE_ASSERT(this->txBuffer != nullptr, "");
-
     this->config->state.rx_buffer = this->rxBuffer;
 //    this->config->state.tx_buffer = this->txBuffer;
 }
@@ -412,13 +411,13 @@ Usart::~Usart()
 
     // unassign rx and tx buffers
     this->rxBuffer = nullptr;
-    this->txBuffer = nullptr;
+    // this->txBuffer = nullptr;
 
     this->config->state.rx_buffer = nullptr;
     this->config->state.tx_buffer = nullptr;
 }
 
-void Usart::begin(uint32_t baud)
+void Usart::begin(const uint32_t baud)
 {
     // default to 8 bits, no parity, 1 stop bit
     begin(baud, SERIAL_8N1);
@@ -483,11 +482,11 @@ void Usart::begin(uint32_t baud, uint16_t config)
     setCalculatedClockDivAndOversampling(&usartConfig, baud);
     #endif
 
-    // call begin with full config
+    // call begins with full config
     begin(baud, &usartConfig);
 }
 
-void Usart::begin(uint32_t baud, const stc_usart_uart_init_t *config, const bool rxNoiseFilter)
+void Usart::begin(const uint32_t baud, const stc_usart_uart_init_t *config, const bool rxNoiseFilter)
 {
     // clear rx and tx buffers
     this->rxBuffer->clear();
@@ -510,6 +509,7 @@ void Usart::begin(uint32_t baud, const stc_usart_uart_init_t *config, const bool
 	
 	// enable TX
 	USART_FuncCmd(this->config->peripheral.register_base, UsartTx, Enable);
+    this->initialized = true;
     // setup usart interrupts
     usart_irq_register(this->config->interrupts.rx_error, "usart rx error");
 //    usart_irq_register(this->config->interrupts.tx_buffer_empty, "usart tx buffer empty");
@@ -535,7 +535,6 @@ void Usart::begin(uint32_t baud, const stc_usart_uart_init_t *config, const bool
 
     // write debug message AFTER init (this UART may be used for the debug message)
     USART_DEBUG_PRINTF("begin completed\n");
-    this->initialized = true;
 }
 
 void Usart::end()

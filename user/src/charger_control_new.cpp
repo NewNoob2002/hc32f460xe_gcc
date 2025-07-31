@@ -22,7 +22,7 @@ bool mp2762a_begin(BatteryState *batteryState)
     mp2762setFastChargeCurrentMa(1600);
     // get charge status
     uint8_t charge_status      = mp2762getChargeStatus();
-    batteryState->chargeStatus = charge_status;
+    batteryState->chargeStatus = static_cast<chargeStatus_t>(charge_status);
 
     return true;
 }
@@ -31,6 +31,6 @@ void mp2762a_update(BatteryState *batteryState)
 {
     const uint8_t charge_status = mp2762getChargeStatus();
     if (CM_VALUE_IN_RANGE(charge_status, 0, 2)) {
-        batteryState->chargeStatus = charge_status;
+        batteryState->chargeStatus = static_cast<chargeStatus_t>(charge_status);
     }
 }

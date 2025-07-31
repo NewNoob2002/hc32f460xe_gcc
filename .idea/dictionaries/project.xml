@@ -2,11 +2,18 @@
   <dictionary name="project">
     <words>
       <w>dmac</w>
+      <w>irqn</w>
       <w>lwmem</w>
+      <w>mountpoint</w>
+      <w>myspi</w>
       <w>newlib</w>
+      <w>ntrip</w>
+      <w>nvic</w>
       <w>pclk</w>
       <w>perar</w>
       <w>rstcause</w>
+      <w>sladdr</w>
+      <w>stopf</w>
       <w>sysmem</w>
       <w>systick</w>
       <w>usart</w>
