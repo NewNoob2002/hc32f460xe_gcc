@@ -41,11 +41,10 @@ License: MIT. Please see LICENSE.md for more details
 // Validate the checksum
 void sempNmeaValidateChecksum(SEMP_PARSE_STATE *parse)
 {
-    int checksum;
-    SEMP_SCRATCH_PAD *scratchPad = (SEMP_SCRATCH_PAD *)parse->scratchPad;
+    auto *scratchPad = static_cast<SEMP_SCRATCH_PAD *>(parse->scratchPad);
 
     // Convert the checksum characters into binary
-    checksum = sempAsciiToNibble(parse->buffer[parse->length - 2]) << 4;
+    uint32_t checksum = sempAsciiToNibble(parse->buffer[parse->length - 2]) << 4;
     checksum |= sempAsciiToNibble(parse->buffer[parse->length - 1]);
 
     // Validate the checksum
@@ -75,7 +74,7 @@ void sempNmeaValidateChecksum(SEMP_PARSE_STATE *parse)
 }
 
 // Read the linefeed
-bool sempNmeaLineFeed(SEMP_PARSE_STATE *parse, uint8_t data)
+bool sempNmeaLineFeed(SEMP_PARSE_STATE *parse, const uint8_t data)
 {
     // Don't add the current character to the length
     parse->length -= 1;
@@ -99,7 +98,7 @@ bool sempNmeaLineFeed(SEMP_PARSE_STATE *parse, uint8_t data)
 }
 
 // Read the remaining carriage return
-bool sempNmeaCarriageReturn(SEMP_PARSE_STATE *parse, uint8_t data)
+bool sempNmeaCarriageReturn(SEMP_PARSE_STATE *parse, const uint8_t data)
 {
     // Don't add the current character to the length
     parse->length -= 1;
@@ -123,7 +122,7 @@ bool sempNmeaCarriageReturn(SEMP_PARSE_STATE *parse, uint8_t data)
 }
 
 // Read the line termination
-bool sempNmeaLineTermination(SEMP_PARSE_STATE *parse, uint8_t data)
+bool sempNmeaLineTermination(SEMP_PARSE_STATE *parse, const uint8_t data)
 {
     // Don't add the current character to the length
     parse->length -= 1;
@@ -148,7 +147,7 @@ bool sempNmeaLineTermination(SEMP_PARSE_STATE *parse, uint8_t data)
 }
 
 // Read the second checksum byte
-bool sempNmeaChecksumByte2(SEMP_PARSE_STATE *parse, uint8_t data)
+bool sempNmeaChecksumByte2(SEMP_PARSE_STATE *parse, const uint8_t data)
 {
     // Validate the checksum character
     if (sempAsciiToNibble(parse->buffer[parse->length - 1]) >= 0)
@@ -167,7 +166,7 @@ bool sempNmeaChecksumByte2(SEMP_PARSE_STATE *parse, uint8_t data)
 }
 
 // Read the first checksum byte
-bool sempNmeaChecksumByte1(SEMP_PARSE_STATE *parse, uint8_t data)
+bool sempNmeaChecksumByte1(SEMP_PARSE_STATE *parse, const uint8_t data)
 {
     // Validate the checksum character
     if (sempAsciiToNibble(parse->buffer[parse->length - 1]) >= 0)
@@ -186,7 +185,7 @@ bool sempNmeaChecksumByte1(SEMP_PARSE_STATE *parse, uint8_t data)
 }
 
 // Read the sentence data
-bool sempNmeaFindAsterisk(SEMP_PARSE_STATE *parse, uint8_t data)
+bool sempNmeaFindAsterisk(SEMP_PARSE_STATE *parse, const uint8_t data)
 {
     if (data == '*')
         parse->state = sempNmeaChecksumByte1;
@@ -196,7 +195,7 @@ bool sempNmeaFindAsterisk(SEMP_PARSE_STATE *parse, uint8_t data)
         parse->crc ^= data;
 
         // Verify that enough space exists in the buffer
-        if ((uint32_t)(parse->length + NMEA_BUFFER_OVERHEAD) > parse->bufferLength)
+        if (static_cast<uint32_t>(parse->length + NMEA_BUFFER_OVERHEAD) > parse->bufferLength)
         {
             // sentence too long
             sempPrintf(parse->printDebug,
@@ -212,15 +211,14 @@ bool sempNmeaFindAsterisk(SEMP_PARSE_STATE *parse, uint8_t data)
 }
 
 // Read the sentence name
-bool sempNmeaFindFirstComma(SEMP_PARSE_STATE *parse, uint8_t data)
+bool sempNmeaFindFirstComma(SEMP_PARSE_STATE *parse, const uint8_t data)
 {
-    SEMP_SCRATCH_PAD *scratchPad = (SEMP_SCRATCH_PAD *)parse->scratchPad;
+    auto *scratchPad = static_cast<SEMP_SCRATCH_PAD *>(parse->scratchPad);
     parse->crc ^= data;
     if ((data != ',') || (scratchPad->nmea.sentenceNameLength == 0))
     {
         // Invalid data, start searching for a preamble byte
-        uint8_t upper = data & ~0x20;
-        if (((upper < 'A') || (upper > 'Z')) && ((data < '0') || (data > '9')))
+        if (const uint8_t upper = data & ~0x20; ((upper < 'A') || (upper > 'Z')) && ((data < '0') || (data > '9')))
         {
             sempPrintf(parse->printDebug,
                        "SEMP %s: NMEA invalid sentence name character 0x%02x",
@@ -251,9 +249,9 @@ bool sempNmeaFindFirstComma(SEMP_PARSE_STATE *parse, uint8_t data)
 }
 
 // Check for the preamble
-bool sempNmeaPreamble(SEMP_PARSE_STATE *parse, uint8_t data)
+bool sempNmeaPreamble(SEMP_PARSE_STATE *parse, const uint8_t data)
 {
-    SEMP_SCRATCH_PAD *scratchPad = (SEMP_SCRATCH_PAD *)parse->scratchPad;
+    auto *scratchPad = static_cast<SEMP_SCRATCH_PAD *>(parse->scratchPad);
     if (data != '$')
         return false;
     scratchPad->nmea.sentenceNameLength = 0;
@@ -261,7 +259,7 @@ bool sempNmeaPreamble(SEMP_PARSE_STATE *parse, uint8_t data)
     return true;
 }
 
-// Translates state value into an string, returns nullptr if not found
+// Translates state value into a string, returns nullptr if not found
 const char * sempNmeaGetStateName(const SEMP_PARSE_STATE *parse)
 {
     if (parse->state == sempNmeaPreamble)
@@ -286,6 +284,6 @@ const char * sempNmeaGetStateName(const SEMP_PARSE_STATE *parse)
 // Return the NMEA sentence name as a string
 const char * sempNmeaGetSentenceName(const SEMP_PARSE_STATE *parse)
 {
-    SEMP_SCRATCH_PAD *scratchPad = (SEMP_SCRATCH_PAD *)parse->scratchPad;
-    return (const char *)scratchPad->nmea.sentenceName;
+    const auto *scratchPad = static_cast<SEMP_SCRATCH_PAD *>(parse->scratchPad);
+    return reinterpret_cast<const char *>(scratchPad->nmea.sentenceName);
 }

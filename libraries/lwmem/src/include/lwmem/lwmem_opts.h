@@ -28,14 +28,14 @@
  *
  * This file is part of LwMEM - Lightweight dynamic memory manager library.
  *
- * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v2.2.1
+ * Author: Tilen MAJERLE <tilen@majerle.eu>
+ * Version: v2.2.1
  */
 #ifndef LWMEM_OPTS_HDR_H
 #define LWMEM_OPTS_HDR_H
 
 /* Rename this file to "lwmem_opts.h" for your application */
-#define LWMEM_SIZE  16   // kbytes
+#define LWMEM_SIZE  16   // bytes
 /*
  * Open "include/lwmem/lwmem_opt.h" and
  * copy & replace here settings you want to change values

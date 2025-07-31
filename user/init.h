@@ -1,5 +1,5 @@
-#ifndef INIT_H__
-#define INIT_H__
+#ifndef INIT_H_
+#define INIT_H_
 
 // get flash start address from ddl framework
 #ifndef LD_FLASH_START

@@ -57,16 +57,37 @@ file(GLOB_RECURSE SOURCE_FILE
         ${CMAKE_CURRENT_LIST_DIR}/user/*.cpp
         ${CMAKE_CURRENT_LIST_DIR}/Arduino/*.cpp
         ${CMAKE_CURRENT_LIST_DIR}/Arduino/*.c
-        ${CMAKE_CURRENT_LIST_DIR}/platform/*.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/core/*.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/core/*.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/platform/LL_drivers/src/*.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/mcu/common/system_hc32f460.c
-        ${CMAKE_CURRENT_LIST_DIR}/platform/mcu/syscalls/*.c
+        ${CMAKE_CURRENT_LIST_DIR}/platform/syscalls/syscalls.c
+        ${CMAKE_CURRENT_LIST_DIR}/platform/syscalls/sysmem.c
 
         ${CMAKE_CURRENT_LIST_DIR}/libraries/*.c
         ${CMAKE_CURRENT_LIST_DIR}/libraries/*.cpp
-    )
+)
+
+# STM32 HAL/LL Drivers
+set(LL_Drivers_Src
+        ${CMAKE_CURRENT_LIST_DIR}/platform/LL_drivers/src/hc32f460_adc.c
+        ${CMAKE_CURRENT_LIST_DIR}/platform/LL_drivers/src/hc32f460_clk.c
+        ${CMAKE_CURRENT_LIST_DIR}/platform/LL_drivers/src/hc32f460_event_port.c
+        ${CMAKE_CURRENT_LIST_DIR}/platform/LL_drivers/src/hc32f460_gpio.c
+        ${CMAKE_CURRENT_LIST_DIR}/platform/LL_drivers/src/hc32f460_i2c.c
+        ${CMAKE_CURRENT_LIST_DIR}/platform/LL_drivers/src/hc32f460_clk.c
+        ${CMAKE_CURRENT_LIST_DIR}/platform/LL_drivers/src/hc32f460_icg.c
+        ${CMAKE_CURRENT_LIST_DIR}/platform/LL_drivers/src/hc32f460_interrupts.c
+        ${CMAKE_CURRENT_LIST_DIR}/platform/LL_drivers/src/hc32f460_pwc.c
+        ${CMAKE_CURRENT_LIST_DIR}/platform/LL_drivers/src/hc32f460_spi.c
+        ${CMAKE_CURRENT_LIST_DIR}/platform/LL_drivers/src/hc32f460_sram.c
+        ${CMAKE_CURRENT_LIST_DIR}/platform/LL_drivers/src/hc32f460_timer0.c
+        ${CMAKE_CURRENT_LIST_DIR}/platform/LL_drivers/src/hc32f460_timera.c
+        ${CMAKE_CURRENT_LIST_DIR}/platform/LL_drivers/src/hc32f460_usart.c
+        ${CMAKE_CURRENT_LIST_DIR}/platform/LL_drivers/src/hc32f460_utility.c
+        ${CMAKE_CURRENT_LIST_DIR}/platform/LL_drivers/src/hc32f460_efm.c
+        ${CMAKE_CURRENT_LIST_DIR}/platform/LL_drivers/src/hc32f460_rmu.c
+        ${CMAKE_CURRENT_LIST_DIR}/platform/LL_drivers/src/hc32f460_dmac.c
+)
 
 SET(STARTUP_FILE ${CMAKE_CURRENT_LIST_DIR}/platform/startup/startup_hc32f460.S)
 
@@ -86,13 +107,13 @@ message("FLASH_SIZE: " ${FLASH_SIZE})
 add_custom_command(
         OUTPUT ${CMAKE_CURRENT_LIST_DIR}/platform/startup/linker/hc32f46x_final.ld
         COMMAND arm-none-eabi-gcc -C -P -x c -E
-            ${CMAKE_CURRENT_LIST_DIR}/platform/startup/linker/hc32f46x_param.ld
+        ${CMAKE_CURRENT_LIST_DIR}/platform/startup/linker/hc32f46x_param2.ld
             -o ${CMAKE_CURRENT_LIST_DIR}/platform/startup/linker/hc32f46x_final.ld
             -DLD_FLASH_START=${FLASH_START}
             -DLD_FLASH_SIZE=${FLASH_SIZE}
             -DLD_BOOT_MODE=${BOOT_MODE}
             -DDDL_STACK_SIZE=${STACK_SIZE}
-        DEPENDS ${CMAKE_CURRENT_LIST_DIR}/platform/startup/linker/hc32f46x_param.ld
+        DEPENDS ${CMAKE_CURRENT_LIST_DIR}/platform/startup/linker/hc32f46x_param2.ld
         COMMENT "===Preprocess linker script, generate hc32f46x_final.ld ==="
 )
     
@@ -100,7 +121,7 @@ add_custom_target(
         gen_linker_script
         DEPENDS ${CMAKE_CURRENT_LIST_DIR}/platform/startup/linker/hc32f46x_final.ld)
 
-add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILE} ${STARTUP_FILE})
+add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILE} ${LL_Drivers_Src} ${STARTUP_FILE})
 
 add_dependencies(${CMAKE_PROJECT_NAME} gen_linker_script)
 

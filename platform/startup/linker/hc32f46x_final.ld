@@ -39,11 +39,24 @@
 /* check if boot mode is valid */
 /* check boot mode is allowed */
 /* flash start offset reduces effective flash size available */
+__OTP_DATA_BASE = 0x03000C00;
+__OTP_LOCK_BASE = 0x03000FC0;
+/* OTP block 0 */
+__OTP_DATA_B0_START = 0x03000C00;
+__OTP_LOCK_B0_START = 0x03000FC0;
+__OTP_DATA_B0_OFFSET = __OTP_DATA_B0_START - __OTP_DATA_BASE;
+__OTP_LOCK_B0_OFFSET = __OTP_LOCK_B0_START - __OTP_LOCK_BASE;
+/* OTP block 1 */
+__OTP_DATA_B1_START = 0x03000C40;
+__OTP_LOCK_B1_START = 0x03000FC4;
+__OTP_DATA_B1_OFFSET = __OTP_DATA_B1_START - __OTP_DATA_BASE;
+__OTP_LOCK_B1_OFFSET = __OTP_LOCK_B1_START - __OTP_LOCK_BASE;
 /* Use contiguous memory regions for simple. */
 MEMORY
 {
     FLASH (rx): ORIGIN = 0x00000000, LENGTH = (524288 - 0x00000000)
-    OTP (rx): ORIGIN = 0x03000C00, LENGTH = 1020
+    OTP_DATA (rx): ORIGIN = 0x03000C00, LENGTH = 960
+    OTP_LOCK (rx): ORIGIN = 0x03000FC0, LENGTH = 60
     RAM (rwx): ORIGIN = 0x1FFF8000, LENGTH = 188K
     RET_RAM (rwx): ORIGIN = 0x200F0000, LENGTH = 4K
 }
@@ -126,14 +139,24 @@ SECTIONS
     } >FLASH
     __etext = ALIGN(4);
     _etext = __etext;
-    .otp_sec :
+    .otp_data :
     {
-        KEEP(*(.otp_sec))
-    } >OTP
-    .otp_lock_sec 0x03000FC0 :
+        . = ALIGN(4);
+        . = ORIGIN(OTP_DATA) + __OTP_DATA_B0_OFFSET;
+        KEEP(*(.otp_b0_data*))
+        . = ORIGIN(OTP_DATA) + __OTP_DATA_B1_OFFSET;
+        KEEP(*(.otp_b1_data*))
+        . = ALIGN(4);
+    } >OTP_DATA
+    .otp_lock :
     {
-        KEEP(*(.otp_lock_sec))
-    } >OTP
+        . = ALIGN(4);
+        . = ORIGIN(OTP_LOCK) + __OTP_LOCK_B0_OFFSET;
+        KEEP(*(.otp_b0_lock*))
+        . = ORIGIN(OTP_LOCK) + __OTP_LOCK_B1_OFFSET;
+        KEEP(*(.otp_b1_lock*))
+        . = ALIGN(4);
+    } >OTP_LOCK
     .data : AT (__etext)
     {
         . = ALIGN(4);
@@ -157,7 +180,7 @@ SECTIONS
         . = ALIGN(4);
         __data_end_ret_ram__ = .;
     } >RET_RAM
-    .bss :
+    .bss (NOLOAD):
     {
         . = ALIGN(4);
         _sbss = .;
@@ -168,6 +191,9 @@ SECTIONS
         . = ALIGN(4);
         _ebss = .;
         __bss_end__ = _ebss;
+        . = ALIGN(4);
+        *(.noinit*)
+        . = ALIGN(4);
     } >RAM
     .ret_ram_bss :
     {

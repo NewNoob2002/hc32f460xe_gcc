@@ -20,9 +20,9 @@
 #ifndef Arduino_h
 #define Arduino_h
 
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
 
 #include "core_types.h"
 

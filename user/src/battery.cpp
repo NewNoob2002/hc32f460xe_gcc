@@ -1,13 +1,12 @@
 #include <Arduino.h>
 #include "mcu_config.h"
 #include "bq40z50/bq40z50.h"
-#include "core_debug.h"
 
 #include "battery.h"
 
 BatteryState batteryState;
 
-const char* getBatteryChargeStatus(uint8_t &chargeStatus)
+const char* getBatteryChargeStatus(const uint8_t &chargeStatus)
 {
     switch (chargeStatus)
     {
@@ -26,9 +25,9 @@ void checkBatteryLevels(BatteryState *batteryState)
 {
     if (online_devices.bq40z50) {
         /* code */
-        float batteryLevelPercent = bq40z50getRelativeStateOfCharge();
-        float batteryVoltage       = (bq40z50getVoltageMv() / 1000.0);
-        float batteryTempC         = bq40z50getTemperatureC();
+        const float batteryLevelPercent = bq40z50getRelativeStateOfCharge();
+        const float batteryVoltage       = (bq40z50getVoltageMv() / 1000.0);
+        const float batteryTempC         = bq40z50getTemperatureC();
 
         if(CM_VALUE_IN_RANGE(batteryLevelPercent, 0, 100)) {
             batteryState->batteryLevelPercent = batteryLevelPercent;

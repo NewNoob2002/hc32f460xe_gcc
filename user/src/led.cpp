@@ -19,7 +19,7 @@ void Led_Init()
     digitalWrite(FUNCTION_LED_PIN, LOW);
 }
 
-//Led Update
+// Led Update
 void Led_Update()
 {
     Led_Update_Power();
@@ -27,13 +27,12 @@ void Led_Update()
     Led_Update_Function();
 }
 
-//Led Update
+// Led Update
 void Led_Update_Power()
 {
     if (powerLed.currentRate > 0)
     {
-        const uint32_t now = millis();
-        if (now - powerLed.lastToggleTime >= powerLed.currentRate)
+        if (const uint32_t now = millis(); now - powerLed.lastToggleTime >= powerLed.currentRate)
         {
             powerLed.isOn = !powerLed.isOn;
             digitalWrite(POWER_LED_PIN, powerLed.isOn ? HIGH : LOW);
@@ -42,13 +41,12 @@ void Led_Update_Power()
     }
 }
 
-//Led Update
+// Led Update
 void Led_Update_Charge()
 {
     if (chargerLed.currentRate > 0)
     {
-        const uint32_t now = millis();
-        if (now - chargerLed.lastToggleTime >= chargerLed.currentRate)
+        if (const uint32_t now = millis(); now - chargerLed.lastToggleTime >= chargerLed.currentRate)
         {
             chargerLed.isOn = !chargerLed.isOn;
             digitalWrite(CHARGE_LED_PIN, chargerLed.isOn ? HIGH : LOW);
@@ -56,26 +54,29 @@ void Led_Update_Charge()
         }
     }
 
-    if(isCharging(&batteryState))
+    if (isCharging(&batteryState))
     {
-        if(isfastCharging(&batteryState))
+        if (isfastCharging(&batteryState))
         {
             chargerLed.currentRate = 300;
-        }else{
+        }
+        else
+        {
             chargerLed.currentRate = 500;
         }
-    }else{
+    }
+    else
+    {
         chargerLed.currentRate = 0;
     }
 }
 
-//Led Update
+// Led Update
 void Led_Update_Function()
 {
     if (functionKeyLed.currentRate > 0)
     {
-        const uint32_t now = millis();
-        if (now - functionKeyLed.lastToggleTime >= functionKeyLed.currentRate)
+        if (const uint32_t now = millis(); now - functionKeyLed.lastToggleTime >= functionKeyLed.currentRate)
         {
             functionKeyLed.isOn = !functionKeyLed.isOn;
             digitalWrite(FUNCTION_LED_PIN, functionKeyLed.isOn ? HIGH : LOW);
@@ -84,18 +85,18 @@ void Led_Update_Function()
     }
 }
 
-//Led Control interface
-void Led_Power_switch(uint8_t level)
+// Led Control interface
+void Led_Power_switch(const uint8_t level)
 {
     digitalWrite(POWER_LED_PIN, level);
 }
 
-void Led_Charge_switch(uint8_t level)
+void Led_Charge_switch(const uint8_t level)
 {
     digitalWrite(CHARGE_LED_PIN, level);
 }
 
-void Led_Function_switch(uint8_t level)
+void Led_Function_switch(const uint8_t level)
 {
     digitalWrite(FUNCTION_LED_PIN, level);
 }

@@ -65,10 +65,11 @@
   #error "bootloader firmware is required to be at address 0x0!"
 #endif
 
-/*****************************************************************************/
-/* OTP section implementation.
-   You need to pay attention to the size of the specified OTP block.
-   Take two OTP blocks for example. */
+/* flash start offset reduces effective flash size available */
+#define FLASH_SIZE_REAL (LD_FLASH_SIZE - LD_FLASH_START)
+#if FLASH_SIZE_REAL < 0
+  #error "effective flash size is negative! check your linker script parameters"
+#endif
 __OTP_DATA_BASE = 0x03000C00;
 __OTP_LOCK_BASE = 0x03000FC0;
 /* OTP block 0 */
@@ -81,11 +82,10 @@ __OTP_DATA_B1_START  = 0x03000C40;
 __OTP_LOCK_B1_START  = 0x03000FC4;
 __OTP_DATA_B1_OFFSET = __OTP_DATA_B1_START - __OTP_DATA_BASE;
 __OTP_LOCK_B1_OFFSET = __OTP_LOCK_B1_START - __OTP_LOCK_BASE;
-
 /* Use contiguous memory regions for simple. */
 MEMORY
 {
-    FLASH       (rx): ORIGIN = 0x00000000, LENGTH = 512K
+    FLASH       (rx): ORIGIN = LD_FLASH_START, LENGTH = FLASH_SIZE_REAL
     OTP_DATA    (rx): ORIGIN = 0x03000C00, LENGTH = 960
     OTP_LOCK    (rx): ORIGIN = 0x03000FC0, LENGTH = 60
     RAM        (rwx): ORIGIN = 0x1FFF8000, LENGTH = 188K
@@ -96,11 +96,11 @@ ENTRY(Reset_Handler)
 
 SECTIONS
 {
+    /* vector table: 0x000 - 0x27F + padding  */
     .vectors :
     {
-        . = ALIGN(4);
-        KEEP(*(.vectors))
-        . = ALIGN(4);
+        KEEP(*(.vectors));
+
         #if LD_BOOT_MODE == 1
             /* add padding to ICG start */
             . = 0x400;
@@ -112,12 +112,15 @@ SECTIONS
 
     #if LD_BOOT_MODE == 1
         /* ICG: 0x400 - 0x41F*/
-    .icg_sec 0x00000400 :
+        .icg_sec :
         {
+            ASSERT(. == (ORIGIN(FLASH) + 0x400), "icg_sec alignment issue");
             KEEP(*(.icg_sec));
+            ASSERT(. == (ORIGIN(FLASH) + 0x420), "icg_sec alignment issue");
         } >FLASH
     #endif
 
+    /* append all other FLASH sections after */
     .text :
     {
         . = ALIGN(4);
@@ -293,7 +296,7 @@ SECTIONS
     __RamEnd = ORIGIN(RAM) + LENGTH(RAM);
     ASSERT(__StackTop <= __RamEnd, "region RAM overflowed with stack")
 
-        /* ensure that HEAP and STACK don't overlap with each other OR bss */
+    /* ensure that HEAP and STACK don't overlap with each other OR bss */
     ASSERT(__HeapBase <= __HeapLimit, "HEAP is broken")
     ASSERT(__StackLimit <= __StackTop, "STACK is broken")
     ASSERT(__bss_end__ <= __HeapBase, "HEAP should follow BSS in memory")

@@ -16,7 +16,7 @@ static lwmem_region_t
 
 /**
  * @brief check if the last reset was caused by a
- *        configuration fault (e.g. XTAL fault) that could be reoccuring
+ *        configuration fault (e.g., XTAL fault) that could be reoccurring
  */
 inline void check_reoccuring_reset_fault()
 {
@@ -39,9 +39,8 @@ inline void check_reoccuring_reset_fault()
 
 void core_init()
 {
-    PORT_DebugPortSetting(TDI, Disable);
-    PORT_DebugPortSetting(TDO_SWO, Disable);
-    PORT_DebugPortSetting(TRST, Disable);
+    PORT_Unlock();
+    M4_PORT->PSPCR=0x03;
     // setup system clock
     clock_init();
     // setup usart
