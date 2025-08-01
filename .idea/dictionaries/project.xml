@@ -11,6 +11,10 @@
       <w>nvic</w>
       <w>pclk</w>
       <w>perar</w>
+      <w>pllm</w>
+      <w>plln</w>
+      <w>pllp</w>
+      <w>pllsource</w>
       <w>rstcause</w>
       <w>sladdr</w>
       <w>stopf</w>

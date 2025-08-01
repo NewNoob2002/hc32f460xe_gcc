@@ -112,7 +112,7 @@ en_result_t irqn_aa_get_(IRQn_Type &irqn)
     return Ok;
 }
 
-en_result_t irqn_aa_resign_(IRQn_Type &irqn)
+en_result_t irqn_aa_resign_(const IRQn_Type &irqn)
 {
     // translate IRQn to IRQn index
     const size_t irqn_index = IRQnManager::translate_irqn_to_index(irqn);
@@ -136,7 +136,7 @@ en_result_t irqn_aa_get(IRQn_Type &irqn, const char *name)
     return Ok;
 }
 
-en_result_t irqn_aa_resign(IRQn_Type &irqn, const char *name)
+en_result_t irqn_aa_resign(const IRQn_Type &irqn, const char *name)
 {
     irqn_aa_resign_(irqn);
     CORE_DEBUG_PRINTF("%s auto-resigned IRQ%d\n", name, static_cast<int>(irqn));

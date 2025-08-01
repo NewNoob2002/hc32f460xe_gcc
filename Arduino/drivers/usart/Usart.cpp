@@ -525,13 +525,13 @@ void Usart::begin(const uint32_t baud, const stc_usart_uart_init_t *config, cons
     #endif // USART_RX_DMA_SUPPORT
     {
         // setup RX interrupt
-        usart_irq_register(this->config->interrupts.rx_data_available, "usart rx data available");
+        //usart_irq_register(this->config->interrupts.rx_data_available, "usart rx data available");
     }
 
     // enable usart RX + interrupts
     // (tx is enabled on-demand when data is available to send)
-    USART_FuncCmd(this->config->peripheral.register_base, UsartRx, Enable);
-    USART_FuncCmd(this->config->peripheral.register_base, UsartRxInt, Enable);
+    //USART_FuncCmd(this->config->peripheral.register_base, UsartRx, Enable);
+    //USART_FuncCmd(this->config->peripheral.register_base, UsartRxInt, Enable);
 
     // write debug message AFTER init (this UART may be used for the debug message)
     USART_DEBUG_PRINTF("begin completed\n");
@@ -555,8 +555,8 @@ void Usart::end()
 
     // resign usart interrupts
     usart_irq_resign(this->config->interrupts.rx_error, "usart rx error");
-    usart_irq_resign(this->config->interrupts.tx_buffer_empty, "usart tx buffer empty");
-    usart_irq_resign(this->config->interrupts.tx_complete, "usart tx complete");
+    // usart_irq_resign(this->config->interrupts.tx_buffer_empty, "usart tx buffer empty");
+    // usart_irq_resign(this->config->interrupts.tx_complete, "usart tx complete");
 
     #ifdef USART_RX_DMA_SUPPORT
     if (this->config->dma.is_dma_enabled())
@@ -568,7 +568,7 @@ void Usart::end()
     #endif // USART_RX_DMA_SUPPORT
     {
         // resign RX interrupt
-        usart_irq_resign(this->config->interrupts.rx_data_available, "usart rx data available");
+        //usart_irq_resign(this->config->interrupts.rx_data_available, "usart rx data available");
     }
 
     // deinit uart
@@ -584,36 +584,32 @@ void Usart::end()
     this->initialized = false;
 }
 
-int Usart::available(void)
+int Usart::available()
 {
     return this->rxBuffer->count();
 }
 
-int Usart::availableForWrite(void)
+int Usart::availableForWrite()
 {
 //    return this->txBuffer->capacity() - this->txBuffer->count();
     return 0;
 }
 
-int Usart::peek(void)
+int Usart::peek()
 {
     return this->rxBuffer->peek();
 }
 
-int Usart::read(void)
+int Usart::read()
 {
-    uint8_t ch;
-    if (this->rxBuffer->pop(ch))
+    if (uint8_t ch; this->rxBuffer->pop(ch))
     {
         return ch;
     }
-    else
-    {
-        return -1;
-    }
+    return -1;
 }
 
-void Usart::flush(void)
+void Usart::flush()
 {
     // ignore if not initialized
     if (!this->initialized)

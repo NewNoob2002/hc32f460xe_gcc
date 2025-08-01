@@ -38,6 +38,7 @@
 /*****************************************************************************/
 
 /* ensure parameters are defined */
+/* ensure parameters are defined */
 #ifndef LD_FLASH_START
   #error "LD_FLASH_START not defined"
 #endif
@@ -65,29 +66,23 @@
   #error "bootloader firmware is required to be at address 0x0!"
 #endif
 
+/* flash start offset reduces effective flash size available */
+#define FLASH_SIZE_REAL (LD_FLASH_SIZE - LD_FLASH_START)
+#if FLASH_SIZE_REAL < 0
+  #error "effective flash size is negative! check your linker script parameters"
+#endif
+
 /*****************************************************************************/
 /* OTP section implementation.
    You need to pay attention to the size of the specified OTP block.
    Take two OTP blocks for example. */
-__OTP_DATA_BASE = 0x03000C00;
-__OTP_LOCK_BASE = 0x03000FC0;
-/* OTP block 0 */
-__OTP_DATA_B0_START  = 0x03000C00;
-__OTP_LOCK_B0_START  = 0x03000FC0;
-__OTP_DATA_B0_OFFSET = __OTP_DATA_B0_START - __OTP_DATA_BASE;
-__OTP_LOCK_B0_OFFSET = __OTP_LOCK_B0_START - __OTP_LOCK_BASE;
-/* OTP block 1 */
-__OTP_DATA_B1_START  = 0x03000C40;
-__OTP_LOCK_B1_START  = 0x03000FC4;
-__OTP_DATA_B1_OFFSET = __OTP_DATA_B1_START - __OTP_DATA_BASE;
-__OTP_LOCK_B1_OFFSET = __OTP_LOCK_B1_START - __OTP_LOCK_BASE;
 
 /* Use contiguous memory regions for simple. */
 MEMORY
 {
-    FLASH       (rx): ORIGIN = 0x00000000, LENGTH = 512K
-    OTP_DATA    (rx): ORIGIN = 0x03000C00, LENGTH = 960
-    OTP_LOCK    (rx): ORIGIN = 0x03000FC0, LENGTH = 60
+    FLASH       (rx): ORIGIN = LD_FLASH_START, LENGTH = FLASH_SIZE_REAL
+/*    OTP_DATA    (rx): ORIGIN = 0x03000C00, LENGTH = 960*/
+/*    OTP_LOCK    (rx): ORIGIN = 0x03000FC0, LENGTH = 60*/
     RAM        (rwx): ORIGIN = 0x1FFF8000, LENGTH = 188K
     RET_RAM    (rwx): ORIGIN = 0x200F0000, LENGTH = 4K
 }
@@ -188,25 +183,25 @@ SECTIONS
     __etext = ALIGN(4);
     _etext = __etext;
 
-    .otp_data :
-    {
-        . = ALIGN(4);
-        . = ORIGIN(OTP_DATA) + __OTP_DATA_B0_OFFSET;
-        KEEP(*(.otp_b0_data*))
-        . = ORIGIN(OTP_DATA) + __OTP_DATA_B1_OFFSET;
-        KEEP(*(.otp_b1_data*))
-        . = ALIGN(4);
-    } >OTP_DATA
-
-    .otp_lock :
-    {
-        . = ALIGN(4);
-        . = ORIGIN(OTP_LOCK) + __OTP_LOCK_B0_OFFSET;
-        KEEP(*(.otp_b0_lock*))
-        . = ORIGIN(OTP_LOCK) + __OTP_LOCK_B1_OFFSET;
-        KEEP(*(.otp_b1_lock*))
-        . = ALIGN(4);
-    } >OTP_LOCK
+/*    .otp_data :*/
+/*    {*/
+/*        . = ALIGN(4);*/
+/*        . = ORIGIN(OTP_DATA) + __OTP_DATA_B0_OFFSET;*/
+/*        KEEP(*(.otp_b0_data*))*/
+/*        . = ORIGIN(OTP_DATA) + __OTP_DATA_B1_OFFSET;*/
+/*        KEEP(*(.otp_b1_data*))*/
+/*        . = ALIGN(4);*/
+/*    } >OTP_DATA*/
+/**/
+/*    .otp_lock :*/
+/*    {*/
+/*        . = ALIGN(4);*/
+/*        . = ORIGIN(OTP_LOCK) + __OTP_LOCK_B0_OFFSET;*/
+/*        KEEP(*(.otp_b0_lock*))*/
+/*        . = ORIGIN(OTP_LOCK) + __OTP_LOCK_B1_OFFSET;*/
+/*        KEEP(*(.otp_b1_lock*))*/
+/*        . = ALIGN(4);*/
+/*    } >OTP_LOCK*/
 
     .data : AT (__etext)
     {

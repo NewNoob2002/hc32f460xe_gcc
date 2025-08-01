@@ -17,7 +17,7 @@ extern "C"
 {
 #endif
 en_result_t irqn_aa_get(IRQn_Type &irqn, const char *name);
-en_result_t irqn_aa_resign(IRQn_Type &irqn, const char *name);
+en_result_t irqn_aa_resign(const IRQn_Type &irqn, const char *name);
 
 #ifdef __cplusplus
 }

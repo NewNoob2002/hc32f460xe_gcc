@@ -108,23 +108,22 @@ set(Defines_Syms
         __CORE_DEBUG
 )
 
-set(BOOT_MODE 1)
-set(FLASH_START 0x00000000)
+set(BOOT_MODE 2)
+set(FLASH_START 0x00008000)
 set(FLASH_END 0x80000)
-math(EXPR FLASH_SIZE "${FLASH_END} - ${FLASH_START}")
 set(STACK_SIZE 0x00001000)
-message("FLASH_SIZE: " ${FLASH_SIZE})
+message("FLASH_SIZE: " ${FLASH_END})
 
 add_custom_command(
         OUTPUT ${CMAKE_CURRENT_LIST_DIR}/platform/startup/linker/hc32f46x_final.ld
         COMMAND arm-none-eabi-gcc -C -P -x c -E
-        ${CMAKE_CURRENT_LIST_DIR}/platform/startup/linker/hc32f46x_param2.ld
+        ${CMAKE_CURRENT_LIST_DIR}/platform/startup/linker/hc32f46x_param.ld
         -o ${CMAKE_CURRENT_LIST_DIR}/platform/startup/linker/hc32f46x_final.ld
         -DLD_FLASH_START=${FLASH_START}
-        -DLD_FLASH_SIZE=${FLASH_SIZE}
+        -DLD_FLASH_SIZE=${FLASH_END}
         -DLD_BOOT_MODE=${BOOT_MODE}
         -DDDL_STACK_SIZE=${STACK_SIZE}
-        DEPENDS ${CMAKE_CURRENT_LIST_DIR}/platform/startup/linker/hc32f46x_param2.ld
+        DEPENDS ${CMAKE_CURRENT_LIST_DIR}/platform/startup/linker/hc32f46x_param.ld
         COMMENT "===Preprocess linker script, generate hc32f46x_final.ld ==="
 )
 

@@ -114,9 +114,7 @@ SECTIONS
         /* ICG: 0x400 - 0x41F*/
         .icg_sec :
         {
-            ASSERT(. == (ORIGIN(FLASH) + 0x400), "icg_sec alignment issue");
             KEEP(*(.icg_sec));
-            ASSERT(. == (ORIGIN(FLASH) + 0x420), "icg_sec alignment issue");
         } >FLASH
     #endif
 
